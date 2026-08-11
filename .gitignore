@@ -10,10 +10,13 @@
 
 # deps
 node_modules/
+.pnpm
+.pnpm-store
 
 # env
 .env
 .env.production
+*.local
 
 # logs
 logs/
@@ -26,3 +29,9 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+coverage/
+dist/
+tsconfig.tsbuildinfo
+
+# reference
+refer

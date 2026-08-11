@@ -4,15 +4,32 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check --max-diagnostics=100 .",
+    "lint:fix": "biome check --max-diagnostics=100 --write .",
+    "prepare": "lefthook install",
+    "commit": "czg",
+    "qwer": "czg"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.0",
     "hono": "^4.13.1"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
-    "tsx": "^4.23.0",
+    "@biomejs/biome": "^2.5.7",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@types/node": "^26.2.0",
+    "czg": "^1.13.1",
+    "lefthook": "^2.1.10",
+    "lint-staged": "^17.3.0",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.13.2"
 }

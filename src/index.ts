@@ -1,21 +1,6 @@
 import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
+import { app } from './app/index.js'
 import { appConfig } from './config/index.js'
-
-const app = new Hono()
-
-app.get('/', c => {
-  return c.json({
-    message: 'Hello Hono~',
-    environment: appConfig.environment,
-  })
-})
-
-app.get('/health', c => {
-  return c.json({
-    status: 'ok',
-  })
-})
 
 serve(
   {

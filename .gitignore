@@ -14,8 +14,9 @@ node_modules/
 .pnpm-store
 
 # env
-.env
-.env.production
+# * for template
+# .env
+# .env.production
 *.local
 
 # logs

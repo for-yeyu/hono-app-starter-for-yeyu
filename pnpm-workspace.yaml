@@ -1,5 +1,10 @@
 packages:
   - "."
 
+# * template default only
+# * adjust this value to match the real project's release and supply-chain policy.
+minimumReleaseAge: 30
+
 allowBuilds:
   esbuild: true
+  lefthook: true

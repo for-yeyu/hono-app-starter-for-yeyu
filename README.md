@@ -30,6 +30,41 @@ pnpm typecheck
 pnpm test
 ```
 
+## Reset to Minimal
+
+When starting a new project that does not need the database or the example user
+feature, reset the template to a minimal Hono app with only `/` and `/health`:
+
+```bash
+pnpm reset:minimal -- --yes
+```
+
+The script keeps every README file, shared HTTP and logger infrastructure, app
+configuration, Node/Worker entrypoints, and repository engineering configuration.
+It removes:
+
+- database and feature source code under `src/db/` and `src/module/`
+- `drizzle/` and `drizzle.config.ts`
+- database config and validator files
+- `src/**/test/`, `vitest.config.ts`, coverage artifacts, and `dist/`
+- `src/lib/http/z-validator.ts`
+- `refer/`
+- `.env.development` and `.env.production`
+- database, example feature, and test scripts/dependencies from `package.json`
+
+It keeps:
+
+- every `README.md` file, including layer documentation under `src/`
+- `src/app/`, `src/config/app.ts`, `src/index.ts`, and `src/server.ts`
+- shared HTTP error handling, request logging, CORS, and Pino logging
+- Biome, Lefthook, Commitlint, Wrangler, and the root engineering configuration
+
+The script removes `.env.development` and `.env.production`, then creates
+`.env.example` with only the environment variables required by the minimal app.
+Back up any local environment values before running it. It changes
+`package.json` but intentionally leaves `pnpm-lock.yaml` for you to reconcile
+with `pnpm install`.
+
 ## Environment
 
 Environment variable names intentionally match the existing runtime contract:

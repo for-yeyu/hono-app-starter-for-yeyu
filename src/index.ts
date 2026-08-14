@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { app } from './app/index.js'
 import { appConfig } from './config/index.js'
+import { logger } from './lib/logger/index.js'
 
 serve(
   {
@@ -8,7 +9,12 @@ serve(
     port: appConfig.port,
   },
   info => {
-    // biome-ignore lint/suspicious/noConsole: <ignore>
-    console.log(`Server is running on http://localhost:${info.port}`)
+    logger.info(
+      {
+        port: info.port,
+        url: `http://localhost:${info.port}`,
+      },
+      'server started <(￣︶￣)↗ 😋',
+    )
   },
 )

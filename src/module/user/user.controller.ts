@@ -1,3 +1,4 @@
+import type { AppEnv } from '#/lib/logger/request-context.js'
 import { Hono } from 'hono'
 import { userService } from './user.service.js'
 import { userCreateValidator, userIdParamValidator, userUpdateValidator } from './user.validator.js'
@@ -5,7 +6,7 @@ import { AppError } from '#/lib/http/app-error.js'
 import { errorCode } from '#/lib/http/error-code.js'
 import { zValidator } from '#/lib/http/z-validator.js'
 
-export const userController = new Hono()
+export const userController = new Hono<AppEnv>()
 
 userController.get('/', async c => {
   return c.json({

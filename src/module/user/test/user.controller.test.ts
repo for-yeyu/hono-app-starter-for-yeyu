@@ -41,6 +41,7 @@ describe('userController', () => {
     const response = await app.request('/api/users')
 
     expect(response.status).toBe(200)
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
     expect(await response.json()).toEqual({
       data: [
         {
@@ -230,6 +231,7 @@ describe('app error handling', () => {
     const response = await app.request('/missing')
 
     expect(response.status).toBe(404)
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
     expect(await response.json()).toEqual({
       success: false,
       error: {
@@ -237,5 +239,17 @@ describe('app error handling', () => {
         message: 'Not found',
       },
     })
+  })
+
+  it('reuses a valid request id header', async () => {
+    const requestId = 'test-request-id'
+    const response = await app.request('/health', {
+      headers: {
+        'x-request-id': requestId,
+      },
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-request-id')).toBe(requestId)
   })
 })

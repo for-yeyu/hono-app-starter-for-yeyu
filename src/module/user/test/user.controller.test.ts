@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { userController } from '../user.controller.js'
+
+vi.hoisted(() => {
+  process.env.Environment = 'development'
+  process.env.ServerPort = '3000'
+  process.env.DatabaseUrl = 'postgres://user:password@localhost:5432/app'
+})
+
+import { app } from '#/app/index.js'
+import { AppError } from '#/lib/http/app-error.js'
+import { errorCode } from '#/lib/http/error-code.js'
 
 const userServiceMock = vi.hoisted(() => ({
   findMany: vi.fn(),
@@ -29,7 +38,7 @@ describe('userController', () => {
   it('returns users', async () => {
     userServiceMock.findMany.mockResolvedValue([user])
 
-    const response = await userController.request('/')
+    const response = await app.request('/api/users')
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
@@ -46,7 +55,7 @@ describe('userController', () => {
   it('returns a user by id', async () => {
     userServiceMock.findById.mockResolvedValue(user)
 
-    const response = await userController.request(`/${user.id}`)
+    const response = await app.request(`/api/users/${user.id}`)
 
     expect(response.status).toBe(200)
     expect(userServiceMock.findById).toHaveBeenCalledWith(user.id)
@@ -62,18 +71,22 @@ describe('userController', () => {
   it('returns 404 when user does not exist', async () => {
     userServiceMock.findById.mockResolvedValue(undefined)
 
-    const response = await userController.request(`/${user.id}`)
+    const response = await app.request(`/api/users/${user.id}`)
 
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({
-      message: 'User not found',
+      success: false,
+      error: {
+        code: 'not_found',
+        message: 'User not found',
+      },
     })
   })
 
   it('creates a user', async () => {
     userServiceMock.create.mockResolvedValue(user)
 
-    const response = await userController.request('/', {
+    const response = await app.request('/api/users', {
       method: 'POST',
       body: JSON.stringify({
         name: user.name,
@@ -108,7 +121,7 @@ describe('userController', () => {
       ...data,
     })
 
-    const response = await userController.request(`/${user.id}`, {
+    const response = await app.request(`/api/users/${user.id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
       headers: {
@@ -131,7 +144,7 @@ describe('userController', () => {
   it('deletes a user', async () => {
     userServiceMock.delete.mockResolvedValue(user)
 
-    const response = await userController.request(`/${user.id}`, {
+    const response = await app.request(`/api/users/${user.id}`, {
       method: 'DELETE',
     })
 
@@ -147,9 +160,82 @@ describe('userController', () => {
   })
 
   it('rejects invalid user id params', async () => {
-    const response = await userController.request('/invalid-id')
+    const response = await app.request('/api/users/invalid-id')
 
     expect(response.status).toBe(400)
     expect(userServiceMock.findById).not.toHaveBeenCalled()
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request',
+        details: [
+          {
+            path: 'id',
+            message: expect.any(String),
+          },
+        ],
+      },
+    })
+  })
+
+  it('returns 409 when email already exists', async () => {
+    userServiceMock.create.mockRejectedValue(
+      new AppError(errorCode.conflict, 'Email already exists'),
+    )
+
+    const response = await app.request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: user.name,
+        email: user.email,
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'conflict',
+        message: 'Email already exists',
+      },
+    })
+  })
+
+  it('returns a safe response for unexpected errors', async () => {
+    userServiceMock.findMany.mockRejectedValue(new Error('database exploded'))
+
+    const response = await app.request('/api/users')
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'internal_server_error',
+        message: 'Internal server error',
+      },
+    })
+  })
+})
+
+describe('app error handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns a unified 404 response for unmatched routes', async () => {
+    const response = await app.request('/missing')
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'not_found',
+        message: 'Not found',
+      },
+    })
   })
 })

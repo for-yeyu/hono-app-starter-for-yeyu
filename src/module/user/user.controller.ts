@@ -1,7 +1,9 @@
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { userService } from './user.service.js'
 import { userCreateValidator, userIdParamValidator, userUpdateValidator } from './user.validator.js'
+import { AppError } from '#/lib/http/app-error.js'
+import { errorCode } from '#/lib/http/error-code.js'
+import { zValidator } from '#/lib/http/z-validator.js'
 
 export const userController = new Hono()
 
@@ -15,12 +17,7 @@ userController.get('/:id', zValidator('param', userIdParamValidator), async c =>
   const user = await userService.findById(c.req.valid('param').id)
 
   if (!user) {
-    return c.json(
-      {
-        message: 'User not found',
-      },
-      404,
-    )
+    throw new AppError(errorCode.notFound, 'User not found')
   }
 
   return c.json({
@@ -47,12 +44,7 @@ userController.patch(
     const user = await userService.update(c.req.valid('param').id, c.req.valid('json'))
 
     if (!user) {
-      return c.json(
-        {
-          message: 'User not found',
-        },
-        404,
-      )
+      throw new AppError(errorCode.notFound, 'User not found')
     }
 
     return c.json({
@@ -65,12 +57,7 @@ userController.delete('/:id', zValidator('param', userIdParamValidator), async c
   const user = await userService.delete(c.req.valid('param').id)
 
   if (!user) {
-    return c.json(
-      {
-        message: 'User not found',
-      },
-      404,
-    )
+    throw new AppError(errorCode.notFound, 'User not found')
   }
 
   return c.json({

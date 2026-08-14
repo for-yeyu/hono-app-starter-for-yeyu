@@ -1,6 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { db } from '#/db/index.js'
 import { users } from '#/db/schema/index.js'
+import { AppError } from '#/lib/http/app-error.js'
+import { errorCode } from '#/lib/http/error-code.js'
+
+const isUniqueViolationError = (error: unknown) =>
+  error instanceof Error && 'code' in error && error.code === '23505'
 
 export const userService = {
   async findMany() {
@@ -14,9 +19,17 @@ export const userService = {
   },
 
   async create(data: { name: string; email: string }) {
-    const [user] = await db.insert(users).values(data).returning()
+    try {
+      const [user] = await db.insert(users).values(data).returning()
 
-    return user
+      return user
+    } catch (error) {
+      if (isUniqueViolationError(error)) {
+        throw new AppError(errorCode.conflict, 'Email already exists')
+      }
+
+      throw error
+    }
   },
 
   async update(id: string, data: { name?: string; email?: string }) {

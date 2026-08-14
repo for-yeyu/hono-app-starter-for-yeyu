@@ -1,8 +1,12 @@
 import { Hono } from 'hono'
 import { appConfig } from '#/config/index.js'
+import { handleError, handleNotFound } from '#/lib/http/error-response.js'
 import { userController } from '#/module/user/user.controller.js'
 
 export const app = new Hono()
+
+app.onError(handleError)
+app.notFound(handleNotFound)
 
 app.get('/', c => {
   return c.json({

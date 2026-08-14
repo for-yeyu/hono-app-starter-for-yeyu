@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm'
-import { db } from '#/db/index.js'
-import { users } from '#/db/schema/index.js'
-import { AppError } from '#/lib/http/app-error.js'
-import { errorCode } from '#/lib/http/error-code.js'
+import { db } from '#src/db/index.js'
+import { users } from '#src/db/schema/index.js'
+import { AppError } from '#src/lib/http/app-error.js'
+import { errorCode } from '#src/lib/http/error-code.js'
 
 const isUniqueViolationError = (error: unknown) =>
   error instanceof Error && 'code' in error && error.code === '23505'

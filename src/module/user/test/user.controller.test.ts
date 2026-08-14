@@ -7,9 +7,9 @@ vi.hoisted(() => {
   process.env.DatabaseUrl = 'postgres://user:password@localhost:5432/app'
 })
 
-import { app } from '#/app/index.js'
-import { AppError } from '#/lib/http/app-error.js'
-import { errorCode } from '#/lib/http/error-code.js'
+import { app } from '#src/app/index.js'
+import { AppError } from '#src/lib/http/app-error.js'
+import { errorCode } from '#src/lib/http/error-code.js'
 
 const userServiceMock = vi.hoisted(() => ({
   findMany: vi.fn(),

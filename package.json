@@ -2,7 +2,7 @@
   "name": "hono-app-starter-for-yeyu",
   "type": "module",
   "imports": {
-    "#/*": {
+    "#src/*": {
       "development": "./src/*",
       "default": "./dist/*"
     }

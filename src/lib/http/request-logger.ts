@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from 'hono'
-import type { AppEnv } from '#/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { nanoid } from 'nanoid'
-import { type Logger, logger } from '#/lib/logger/index.js'
+import { type Logger, logger } from '#src/lib/logger/index.js'
 
 const requestIdHeader = 'x-request-id'
 

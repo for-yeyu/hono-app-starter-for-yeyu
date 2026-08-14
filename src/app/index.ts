@@ -1,10 +1,10 @@
-import type { AppEnv } from '#/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { appConfig } from '#/config/index.js'
-import { handleError, handleNotFound } from '#/lib/http/error-response.js'
-import { requestLogger } from '#/lib/http/request-logger.js'
-import { userController } from '#/module/user/user.controller.js'
+import { appConfig } from '#src/config/index.js'
+import { handleError, handleNotFound } from '#src/lib/http/error-response.js'
+import { requestLogger } from '#src/lib/http/request-logger.js'
+import { userController } from '#src/module/user/user.controller.js'
 
 export const app = new Hono<AppEnv>()
 

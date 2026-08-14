@@ -143,6 +143,29 @@ describe('userController', () => {
     })
   })
 
+  it('returns 404 when updating a missing user', async () => {
+    userServiceMock.update.mockResolvedValue(undefined)
+
+    const response = await app.request(`/api/users/${user.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        name: 'Ada Byron',
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'not_found',
+        message: 'User not found',
+      },
+    })
+  })
+
   it('deletes a user', async () => {
     userServiceMock.delete.mockResolvedValue(user)
 
@@ -161,6 +184,23 @@ describe('userController', () => {
     })
   })
 
+  it('returns 404 when deleting a missing user', async () => {
+    userServiceMock.delete.mockResolvedValue(undefined)
+
+    const response = await app.request(`/api/users/${user.id}`, {
+      method: 'DELETE',
+    })
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'not_found',
+        message: 'User not found',
+      },
+    })
+  })
+
   it('rejects invalid user id params', async () => {
     const response = await app.request('/api/users/invalid-id')
 
@@ -175,6 +215,65 @@ describe('userController', () => {
           {
             path: 'id',
             message: expect.any(String),
+          },
+        ],
+      },
+    })
+  })
+
+  it('rejects an invalid user body', async () => {
+    const response = await app.request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: '',
+        email: 'invalid-email',
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(400)
+    expect(userServiceMock.create).not.toHaveBeenCalled()
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request',
+        details: expect.arrayContaining([
+          {
+            path: 'name',
+            message: expect.any(String),
+          },
+          {
+            path: 'email',
+            message: expect.any(String),
+          },
+        ]),
+      },
+    })
+  })
+
+  it('rejects an empty user update', async () => {
+    const response = await app.request(`/api/users/${user.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({}),
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(400)
+    expect(userServiceMock.update).not.toHaveBeenCalled()
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request',
+        details: [
+          {
+            path: 'json',
+            message: 'At least one field is required',
           },
         ],
       },
@@ -228,6 +327,16 @@ describe('app error handling', () => {
     vi.clearAllMocks()
   })
 
+  it('returns the application metadata from the root route', async () => {
+    const response = await app.request('/')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      message: 'Hello Hono~',
+      environment: 'development',
+    })
+  })
+
   it('returns a unified 404 response for unmatched routes', async () => {
     const response = await app.request('/missing')
 
@@ -252,6 +361,29 @@ describe('app error handling', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('x-request-id')).toBe(requestId)
+  })
+
+  it('generates a request id for an invalid header and records request metadata', async () => {
+    const response = await app.request('/health', {
+      headers: {
+        'x-request-id': 'invalid request id',
+        'x-forwarded-for': '192.0.2.10, 198.51.100.20',
+        'user-agent': 'vitest',
+      },
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-request-id')).toEqual(expect.stringMatching(/^[\w.:-]{21}$/))
+  })
+
+  it('uses the real ip header when forwarded for is absent', async () => {
+    const response = await app.request('/health', {
+      headers: {
+        'x-real-ip': '192.0.2.20',
+      },
+    })
+
+    expect(response.status).toBe(200)
   })
 
   it('allows configured cors origins', async () => {

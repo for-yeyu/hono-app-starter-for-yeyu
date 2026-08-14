@@ -58,7 +58,6 @@ Keep production secrets outside version control and review the existing
 | `pnpm db:push:dev` | Push the development schema |
 | `pnpm db:generate:prod` | Generate a production migration |
 | `pnpm db:migrate:prod` | Apply production migrations |
-| `pnpm db:push:prod` | Push the production schema |
 | `pnpm start` | Start the compiled Node server |
 | `pnpm preview` | Deploy with Wrangler using production secrets |
 

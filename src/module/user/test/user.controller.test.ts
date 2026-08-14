@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.hoisted(() => {
   process.env.Environment = 'development'
   process.env.ServerPort = '3000'
+  process.env.CorsOrigins = 'http://localhost:3000'
   process.env.DatabaseUrl = 'postgres://user:password@localhost:5432/app'
 })
 
@@ -251,5 +252,35 @@ describe('app error handling', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('x-request-id')).toBe(requestId)
+  })
+
+  it('allows configured cors origins', async () => {
+    const response = await app.request('/health', {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'http://localhost:3000',
+        'access-control-request-method': 'GET',
+      },
+    })
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get('access-control-allow-origin')).toBe('http://localhost:3000')
+    expect(response.headers.get('access-control-allow-methods')).toBe(
+      'GET,POST,PATCH,DELETE,OPTIONS',
+    )
+    expect(response.headers.get('access-control-expose-headers')).toBe('x-request-id')
+  })
+
+  it('does not allow unconfigured cors origins', async () => {
+    const response = await app.request('/health', {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'http://localhost:5173',
+        'access-control-request-method': 'GET',
+      },
+    })
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get('access-control-allow-origin')).toBeNull()
   })
 })

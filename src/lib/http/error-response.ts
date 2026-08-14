@@ -3,7 +3,6 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { AppError, type ErrorDetail } from './app-error.js'
 import { type ErrorCode, errorCode } from './error-code.js'
-import { logger } from '#src/lib/logger/index.js'
 
 type ErrorResponseBody = {
   success: false
@@ -37,8 +36,6 @@ export const errorResponse = (
   },
 ) => c.json(createErrorResponseBody(error.code, error.message, error.details), error.status)
 
-const getRequestLogger = (c: Context<AppEnv>) => c.get('logger') || logger
-
 const logError = (
   c: Context<AppEnv>,
   error: {
@@ -48,7 +45,7 @@ const logError = (
     err?: Error
   },
 ) => {
-  const requestLogger = getRequestLogger(c)
+  const requestLogger = c.get('logger')
   const data = {
     errorCode: error.code,
     status: error.status,

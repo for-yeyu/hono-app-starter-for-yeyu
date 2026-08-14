@@ -4,11 +4,12 @@ import { nanoid } from 'nanoid'
 import { type Logger, logger } from '#src/lib/logger/index.js'
 
 const requestIdHeader = 'x-request-id'
+const requestIdPattern = /^[\w.:-]{1,128}$/
 
 const getRequestId = (requestId?: string) => {
   const trimmedRequestId = requestId?.trim()
 
-  if (trimmedRequestId && trimmedRequestId.length <= 128) {
+  if (trimmedRequestId && requestIdPattern.test(trimmedRequestId)) {
     return trimmedRequestId
   }
 

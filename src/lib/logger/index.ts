@@ -4,7 +4,7 @@ import { appConfig } from '#src/config/index.js'
 export const logger = pino({
   level: appConfig.environment === 'production' ? 'info' : 'debug',
   base: {
-    service: 'hono-app-starter-for-yeyu',
+    service: appConfig.serviceName,
     environment: appConfig.environment,
   },
   serializers: {

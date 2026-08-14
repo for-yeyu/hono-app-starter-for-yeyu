@@ -1,0 +1,4 @@
+interface:
+  display_name: "Database Conventions"
+  short_description: "Change Drizzle schema, clients, and migrations"
+  default_prompt: "Use $db-conventions to change the PostgreSQL schema or Drizzle data layer."

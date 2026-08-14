@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Chain Conventions"
+  short_description: "Trace and change Hono features across layers"
+  default_prompt: "Use $feature-chain-conventions to implement a cross-layer Hono feature."

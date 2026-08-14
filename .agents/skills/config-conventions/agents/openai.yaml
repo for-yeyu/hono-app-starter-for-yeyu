@@ -1,0 +1,4 @@
+interface:
+  display_name: "Configuration Conventions"
+  short_description: "Validate startup environment and runtime config"
+  default_prompt: "Use $config-conventions to add or change validated runtime configuration."

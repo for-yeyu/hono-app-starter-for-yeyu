@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vitest Testing Conventions"
+  short_description: "Test Hono contracts and backend behavior"
+  default_prompt: "Use $testing-conventions to add focused Vitest coverage for backend behavior."

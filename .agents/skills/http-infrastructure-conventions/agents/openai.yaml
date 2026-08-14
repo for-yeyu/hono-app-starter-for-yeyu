@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTTP Infrastructure Conventions"
+  short_description: "Preserve Hono errors, validation, IDs, and logs"
+  default_prompt: "Use $http-infrastructure-conventions to change HTTP errors, validation, request IDs, or logging."

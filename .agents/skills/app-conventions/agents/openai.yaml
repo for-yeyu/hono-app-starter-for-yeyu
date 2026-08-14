@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hono App Conventions"
+  short_description: "Keep Hono entrypoints thin and predictable"
+  default_prompt: "Use $app-conventions to add or change Hono routes and middleware."

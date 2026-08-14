@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import { appConfig } from '../config/index.js'
-import { userController } from '../module/user/user.controller.js'
+import { appConfig } from '#/config/index.js'
+import { userController } from '#/module/user/user.controller.js'
 
 export const app = new Hono()
 

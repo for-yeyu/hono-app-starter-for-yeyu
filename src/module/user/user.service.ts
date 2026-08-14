@@ -1,54 +1,39 @@
-const users = [
-  {
-    id: '1',
-    name: 'Ada Lovelace',
-    email: 'ada@example.com',
-  },
-  {
-    id: '2',
-    name: 'Grace Hopper',
-    email: 'grace@example.com',
-  },
-]
+import { eq } from 'drizzle-orm'
+import { db } from '#/db/index.js'
+import { users } from '#/db/schema/index.js'
 
 export const userService = {
-  findMany() {
-    return users
+  async findMany() {
+    return db.select().from(users).orderBy(users.createdAt)
   },
 
-  findById(id: string) {
-    return users.find(user => user.id === id)
-  },
-
-  create(data: { name: string; email: string }) {
-    const user = {
-      id: crypto.randomUUID(),
-      ...data,
-    }
-
-    users.push(user)
+  async findById(id: string) {
+    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1)
 
     return user
   },
 
-  update(id: string, data: { name?: string; email?: string }) {
-    const user = users.find(item => item.id === id)
+  async create(data: { name: string; email: string }) {
+    const [user] = await db.insert(users).values(data).returning()
 
-    if (!user) {
-      return null
-    }
-
-    return Object.assign(user, data)
+    return user
   },
 
-  delete(id: string) {
-    const userIndex = users.findIndex(user => user.id === id)
+  async update(id: string, data: { name?: string; email?: string }) {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning()
 
-    if (userIndex === -1) {
-      return null
-    }
+    return user
+  },
 
-    const [user] = users.splice(userIndex, 1)
+  async delete(id: string) {
+    const [user] = await db.delete(users).where(eq(users.id, id)).returning()
 
     return user
   },

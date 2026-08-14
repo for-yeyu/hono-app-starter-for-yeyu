@@ -1,18 +1,18 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { userService } from './user.service.js'
-import { userCreateValidator, userUpdateValidator } from './user.validator.js'
+import { userCreateValidator, userIdParamValidator, userUpdateValidator } from './user.validator.js'
 
 export const userController = new Hono()
 
-userController.get('/', c => {
+userController.get('/', async c => {
   return c.json({
-    data: userService.findMany(),
+    data: await userService.findMany(),
   })
 })
 
-userController.get('/:id', c => {
-  const user = userService.findById(c.req.param('id'))
+userController.get('/:id', zValidator('param', userIdParamValidator), async c => {
+  const user = await userService.findById(c.req.valid('param').id)
 
   if (!user) {
     return c.json(
@@ -28,8 +28,8 @@ userController.get('/:id', c => {
   })
 })
 
-userController.post('/', zValidator('json', userCreateValidator), c => {
-  const user = userService.create(c.req.valid('json'))
+userController.post('/', zValidator('json', userCreateValidator), async c => {
+  const user = await userService.create(c.req.valid('json'))
 
   return c.json(
     {
@@ -39,25 +39,30 @@ userController.post('/', zValidator('json', userCreateValidator), c => {
   )
 })
 
-userController.patch('/:id', zValidator('json', userUpdateValidator), c => {
-  const user = userService.update(c.req.param('id'), c.req.valid('json'))
+userController.patch(
+  '/:id',
+  zValidator('param', userIdParamValidator),
+  zValidator('json', userUpdateValidator),
+  async c => {
+    const user = await userService.update(c.req.valid('param').id, c.req.valid('json'))
 
-  if (!user) {
-    return c.json(
-      {
-        message: 'User not found',
-      },
-      404,
-    )
-  }
+    if (!user) {
+      return c.json(
+        {
+          message: 'User not found',
+        },
+        404,
+      )
+    }
 
-  return c.json({
-    data: user,
-  })
-})
+    return c.json({
+      data: user,
+    })
+  },
+)
 
-userController.delete('/:id', c => {
-  const user = userService.delete(c.req.param('id'))
+userController.delete('/:id', zValidator('param', userIdParamValidator), async c => {
+  const user = await userService.delete(c.req.valid('param').id)
 
   if (!user) {
     return c.json(

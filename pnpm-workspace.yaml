@@ -8,3 +8,4 @@ minimumReleaseAge: 30
 allowBuilds:
   esbuild: true
   lefthook: true
+  workerd: true

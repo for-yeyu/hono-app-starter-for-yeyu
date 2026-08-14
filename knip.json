@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "ignoreFiles": ["drizzle.config.ts"],
+  "ignoreDependencies": ["pino-pretty"],
+  "workspaces": {
+    ".": {
+      "drizzle": false
+    }
+  }
+}

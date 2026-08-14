@@ -26,7 +26,7 @@ const createErrorResponseBody = (
   },
 })
 
-export const errorResponse = (
+const errorResponse = (
   c: Context<AppEnv>,
   error: {
     code: ErrorCode

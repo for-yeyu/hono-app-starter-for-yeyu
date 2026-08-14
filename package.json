@@ -30,7 +30,8 @@
     "db:push:dev": "set -a; . ./.env.development; set +a; drizzle-kit push --config=drizzle.config.ts",
     "prepare": "lefthook install",
     "commit": "czg",
-    "qwer": "czg"
+    "qwer": "czg",
+    "knip": "knip"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.0",
@@ -51,6 +52,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "czg": "^1.13.2",
     "drizzle-kit": "1.0.0-rc.4",
+    "knip": "^6.32.2",
     "lefthook": "^2.1.10",
     "lint-staged": "^17.3.0",
     "pino-pretty": "^13.1.2",

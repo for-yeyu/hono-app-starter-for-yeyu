@@ -2,7 +2,7 @@
 const emojiHeaderPattern =
   /^(\p{Extended_Pictographic}(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F)?)*)\s(\w+)(?:\(([^)]*)\))?(!)?:\s(.+)$/u
 
-/** @type {import('cz-git').UserConfig} */
+/** @type {import('czg').UserConfig} */
 module.exports = {
   // ignores: [commit => commit.includes("init")],
   extends: ['@commitlint/config-conventional'],

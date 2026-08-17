@@ -5,6 +5,7 @@ import { requestId } from 'hono/request-id'
 import { appConfig } from '#src/config/index.js'
 import { handleError, handleNotFound } from '#src/lib/http/error-response.js'
 import { requestLogger } from '#src/lib/http/request-logger.js'
+import { authController } from '#src/module/auth/auth.controller.js'
 import { userController } from '#src/module/user/user.controller.js'
 
 export const app = new Hono<AppEnv>()
@@ -37,4 +38,5 @@ app.get('/health', c => {
   })
 })
 
+app.route('/api/auth', authController)
 app.route('/api/users', userController)

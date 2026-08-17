@@ -5,6 +5,8 @@ vi.hoisted(() => {
   process.env.ServerPort = '3000'
   process.env.CorsOrigins = '*'
   process.env.DatabaseUrl = 'postgres://user:password@localhost:5432/app'
+  process.env.JwtPrivateKey = 'test-private-key'
+  process.env.JwtPublicKey = 'test-public-key'
 })
 
 import { logger } from '../index.js'

@@ -9,6 +9,7 @@ export type ErrorDetail = {
 const errorStatusByCode = {
   [errorCode.badRequest]: 400,
   [errorCode.validationError]: 400,
+  [errorCode.unauthorized]: 401,
   [errorCode.notFound]: 404,
   [errorCode.conflict]: 409,
   [errorCode.internalServerError]: 500,

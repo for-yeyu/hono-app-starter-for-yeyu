@@ -8,6 +8,8 @@ describe('appConfigValidator', () => {
       port: '3000',
       serviceName: 'hono-api',
       corsOrigins: 'https://example.com, http://localhost:3000',
+      jwtPrivateKey: 'test-private-key',
+      jwtPublicKey: 'test-public-key',
     })
 
     expect(result.success).toBe(true)
@@ -18,6 +20,8 @@ describe('appConfigValidator', () => {
         port: 3000,
         serviceName: 'hono-api',
         corsOrigins: ['https://example.com', 'http://localhost:3000'],
+        jwtPrivateKey: 'test-private-key',
+        jwtPublicKey: 'test-public-key',
       })
     }
   })
@@ -27,6 +31,8 @@ describe('appConfigValidator', () => {
       environment: 'production',
       port: 443,
       corsOrigins: '*',
+      jwtPrivateKey: 'test-private-key',
+      jwtPublicKey: 'test-public-key',
     })
 
     expect(result.success).toBe(true)
@@ -44,5 +50,28 @@ describe('appConfigValidator', () => {
     })
 
     expect(result.success).toBe(false)
+  })
+
+  it('rejects missing jwt keys', () => {
+    const result = appConfigValidator.safeParse({
+      environment: 'development',
+      port: 3000,
+      corsOrigins: 'http://localhost:3000',
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('normalizes escaped newlines in jwt keys', () => {
+    const result = appConfigValidator.parse({
+      environment: 'development',
+      port: 3000,
+      corsOrigins: 'http://localhost:3000',
+      jwtPrivateKey: 'private\\nkey',
+      jwtPublicKey: 'public\\nkey',
+    })
+
+    expect(result.jwtPrivateKey).toBe('private\nkey')
+    expect(result.jwtPublicKey).toBe('public\nkey')
   })
 })

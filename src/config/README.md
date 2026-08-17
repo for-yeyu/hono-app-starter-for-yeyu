@@ -8,7 +8,8 @@ Configuration is parsed at module load time from `process.env`:
 - `src/config/index.ts` is the explicit export boundary for config objects.
 
 Use the existing PascalCase environment variable names exactly:
-`Environment`, `ServerPort`, `ServiceName`, `CorsOrigins`, and `DatabaseUrl`.
+`Environment`, `ServerPort`, `ServiceName`, `CorsOrigins`, `DatabaseUrl`, and
+`JwtPrivateKey` and `JwtPublicKey`.
 Use lower camelCase for the resulting config properties.
 
 Required values must fail startup validation. Do not add fallback values,

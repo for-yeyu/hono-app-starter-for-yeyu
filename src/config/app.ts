@@ -5,4 +5,6 @@ export const appConfig = appConfigValidator.parse({
   port: process.env.ServerPort,
   serviceName: process.env.ServiceName,
   corsOrigins: process.env.CorsOrigins,
+  jwtPrivateKey: process.env.JwtPrivateKey,
+  jwtPublicKey: process.env.JwtPublicKey,
 })

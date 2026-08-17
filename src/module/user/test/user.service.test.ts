@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const dbMock = vi.hoisted(() => ({
@@ -7,8 +8,16 @@ const dbMock = vi.hoisted(() => ({
   delete: vi.fn(),
 }))
 
+const bcryptMock = vi.hoisted(() => ({
+  hash: vi.fn(),
+}))
+
 vi.mock('#src/db/index.js', () => ({
   db: dbMock,
+}))
+
+vi.mock('bcrypt', () => ({
+  default: bcryptMock,
 }))
 
 import { userService } from '../user.service.js'
@@ -51,6 +60,11 @@ describe('userService', () => {
   })
 
   it('creates a user', async () => {
+    bcryptMock.hash.mockResolvedValue('hashed-password')
+    const limit = vi.fn().mockResolvedValue([])
+    const where = vi.fn().mockReturnValue({ limit })
+    const from = vi.fn().mockReturnValue({ where })
+    dbMock.select.mockReturnValue({ from })
     const returning = vi.fn().mockResolvedValue([user])
     const values = vi.fn().mockReturnValue({ returning })
     dbMock.insert.mockReturnValue({ values })
@@ -62,13 +76,41 @@ describe('userService', () => {
       }),
     ).resolves.toEqual(user)
 
+    expect(bcryptMock.hash).toHaveBeenCalledWith(user.password, 10)
+    expect(where).toHaveBeenCalledWith(eq(users.name, user.name))
     expect(values).toHaveBeenCalledWith({
       name: user.name,
-      password: user.password,
+      password: 'hashed-password',
     })
   })
 
+  it('rejects creating an existing user', async () => {
+    const limit = vi.fn().mockResolvedValue([user])
+    const where = vi.fn().mockReturnValue({ limit })
+    const from = vi.fn().mockReturnValue({ where })
+    dbMock.select.mockReturnValue({ from })
+
+    await expect(
+      userService.create({
+        name: user.name,
+        password: user.password,
+      }),
+    ).rejects.toMatchObject({
+      code: 'conflict',
+      message: 'User already exists',
+      status: 409,
+    })
+
+    expect(bcryptMock.hash).not.toHaveBeenCalled()
+    expect(dbMock.insert).not.toHaveBeenCalled()
+  })
+
   it('rethrows unexpected database errors', async () => {
+    bcryptMock.hash.mockResolvedValue('hashed-password')
+    const limit = vi.fn().mockResolvedValue([])
+    const where = vi.fn().mockReturnValue({ limit })
+    const from = vi.fn().mockReturnValue({ where })
+    dbMock.select.mockReturnValue({ from })
     const databaseError = new Error('database unavailable')
     const returning = vi.fn().mockRejectedValue(databaseError)
     const values = vi.fn().mockReturnValue({ returning })
@@ -80,6 +122,26 @@ describe('userService', () => {
         password: user.password,
       }),
     ).rejects.toBe(databaseError)
+  })
+
+  it('hashes a new password when updating a user', async () => {
+    bcryptMock.hash.mockResolvedValue('new-hashed-password')
+    const returning = vi.fn().mockResolvedValue([user])
+    const where = vi.fn().mockReturnValue({ returning })
+    const set = vi.fn().mockReturnValue({ where })
+    dbMock.update.mockReturnValue({ set })
+
+    await expect(
+      userService.update(user.id, {
+        password: 'new password',
+      }),
+    ).resolves.toEqual(user)
+
+    expect(bcryptMock.hash).toHaveBeenCalledWith('new password', 10)
+    expect(set).toHaveBeenCalledWith({
+      password: 'new-hashed-password',
+      updatedAt: expect.any(Date),
+    })
   })
 
   it('updates a user and refreshes the update timestamp', async () => {

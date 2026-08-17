@@ -8,6 +8,7 @@ vi.hoisted(() => {
 })
 
 import { app } from '#src/app/index.js'
+import { AppError } from '#src/lib/http/app-error.js'
 
 const userServiceMock = vi.hoisted(() => ({
   findMany: vi.fn(),
@@ -107,6 +108,30 @@ describe('userController', () => {
         ...user,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
+      },
+    })
+  })
+
+  it('returns 409 when creating an existing user', async () => {
+    userServiceMock.create.mockRejectedValue(new AppError('conflict', 'User already exists'))
+
+    const response = await app.request('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: user.name,
+        password: user.password,
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'conflict',
+        message: 'User already exists',
       },
     })
   })

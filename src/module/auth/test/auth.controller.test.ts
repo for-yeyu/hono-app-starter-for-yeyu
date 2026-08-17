@@ -16,9 +16,16 @@ const authServiceMock = vi.hoisted(() => ({
   login: vi.fn(),
 }))
 
+const joseMock = vi.hoisted(() => ({
+  importSPKI: vi.fn(),
+  jwtVerify: vi.fn(),
+}))
+
 vi.mock('../auth.service.js', () => ({
   authService: authServiceMock,
 }))
+
+vi.mock('jose', () => joseMock)
 
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
@@ -114,6 +121,67 @@ describe('authController', () => {
             message: expect.any(String),
           },
         ]),
+      },
+    })
+  })
+
+  it('returns the current user with a valid token', async () => {
+    joseMock.importSPKI.mockResolvedValue('public-key')
+    joseMock.jwtVerify.mockResolvedValue({
+      payload: {
+        sub: user.id,
+        name: user.name,
+      },
+    })
+
+    const response = await app.request('/api/auth/me', {
+      headers: {
+        authorization: 'Bearer valid-token',
+      },
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
+    expect(joseMock.importSPKI).toHaveBeenCalledWith('test-public-key', 'RS256')
+    expect(joseMock.jwtVerify).toHaveBeenCalledWith('valid-token', 'public-key', {
+      algorithms: ['RS256'],
+    })
+    expect(await response.json()).toEqual({
+      data: user,
+    })
+  })
+
+  it('rejects a request without a token', async () => {
+    const response = await app.request('/api/auth/me')
+
+    expect(response.status).toBe(401)
+    expect(joseMock.importSPKI).not.toHaveBeenCalled()
+    expect(joseMock.jwtVerify).not.toHaveBeenCalled()
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'unauthorized',
+        message: 'Authorization token is required',
+      },
+    })
+  })
+
+  it('rejects an invalid token', async () => {
+    joseMock.importSPKI.mockResolvedValue('public-key')
+    joseMock.jwtVerify.mockRejectedValue(new Error('invalid token'))
+
+    const response = await app.request('/api/auth/me', {
+      headers: {
+        authorization: 'Bearer invalid-token',
+      },
+    })
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'unauthorized',
+        message: 'Invalid token',
       },
     })
   })

@@ -7,19 +7,30 @@ import { errorCode } from '#src/lib/http/error-code.js'
 
 const saltRounds = 10
 
+const publicUserFields = {
+  id: users.id,
+  name: users.name,
+  createdAt: users.createdAt,
+  updatedAt: users.updatedAt,
+}
+
 export const userService = {
   async findMany() {
-    return db.select().from(users).orderBy(users.createdAt)
+    return db.select(publicUserFields).from(users).orderBy(users.createdAt)
   },
 
   async findById(id: string) {
-    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1)
+    const [user] = await db.select(publicUserFields).from(users).where(eq(users.id, id)).limit(1)
 
     return user
   },
 
   async create(data: { name: string; password: string }) {
-    const [existingUser] = await db.select().from(users).where(eq(users.name, data.name)).limit(1)
+    const [existingUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.name, data.name))
+      .limit(1)
 
     if (existingUser) {
       throw new AppError(errorCode.conflict, 'User already exists')
@@ -32,7 +43,7 @@ export const userService = {
         ...data,
         password,
       })
-      .returning()
+      .returning(publicUserFields)
 
     return user
   },
@@ -47,13 +58,17 @@ export const userService = {
       updateData.password = await bcrypt.hash(data.password, saltRounds)
     }
 
-    const [user] = await db.update(users).set(updateData).where(eq(users.id, id)).returning()
+    const [user] = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, id))
+      .returning(publicUserFields)
 
     return user
   },
 
   async delete(id: string) {
-    const [user] = await db.delete(users).where(eq(users.id, id)).returning()
+    const [user] = await db.delete(users).where(eq(users.id, id)).returning(publicUserFields)
 
     return user
   },

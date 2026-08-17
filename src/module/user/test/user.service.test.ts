@@ -26,10 +26,11 @@ import { users } from '#src/db/schema/index.js'
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
   name: 'Ada Lovelace',
-  password: 'correct horse battery staple',
   createdAt: new Date('2026-08-14T00:00:00.000Z'),
   updatedAt: new Date('2026-08-14T00:00:00.000Z'),
 }
+
+const password = 'correct horse battery staple'
 
 describe('userService', () => {
   beforeEach(() => {
@@ -43,6 +44,15 @@ describe('userService', () => {
 
     await expect(userService.findMany()).resolves.toEqual([user])
 
+    expect(dbMock.select).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: users.id,
+        name: users.name,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }),
+    )
+    expect(dbMock.select.mock.calls[0][0]).not.toHaveProperty('password')
     expect(from).toHaveBeenCalledWith(users)
     expect(orderBy).toHaveBeenCalledWith(users.createdAt)
   })
@@ -55,6 +65,15 @@ describe('userService', () => {
 
     await expect(userService.findById(user.id)).resolves.toEqual(user)
 
+    expect(dbMock.select).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: users.id,
+        name: users.name,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }),
+    )
+    expect(dbMock.select.mock.calls[0][0]).not.toHaveProperty('password')
     expect(from).toHaveBeenCalledWith(users)
     expect(limit).toHaveBeenCalledWith(1)
   })
@@ -72,16 +91,17 @@ describe('userService', () => {
     await expect(
       userService.create({
         name: user.name,
-        password: user.password,
+        password,
       }),
     ).resolves.toEqual(user)
 
-    expect(bcryptMock.hash).toHaveBeenCalledWith(user.password, 10)
+    expect(bcryptMock.hash).toHaveBeenCalledWith(password, 10)
     expect(where).toHaveBeenCalledWith(eq(users.name, user.name))
     expect(values).toHaveBeenCalledWith({
       name: user.name,
       password: 'hashed-password',
     })
+    expect(returning.mock.calls[0][0]).not.toHaveProperty('password')
   })
 
   it('rejects creating an existing user', async () => {
@@ -93,7 +113,7 @@ describe('userService', () => {
     await expect(
       userService.create({
         name: user.name,
-        password: user.password,
+        password,
       }),
     ).rejects.toMatchObject({
       code: 'conflict',
@@ -119,7 +139,7 @@ describe('userService', () => {
     await expect(
       userService.create({
         name: user.name,
-        password: user.password,
+        password,
       }),
     ).rejects.toBe(databaseError)
   })
@@ -142,6 +162,7 @@ describe('userService', () => {
       password: 'new-hashed-password',
       updatedAt: expect.any(Date),
     })
+    expect(returning.mock.calls[0][0]).not.toHaveProperty('password')
   })
 
   it('updates a user and refreshes the update timestamp', async () => {
@@ -160,6 +181,7 @@ describe('userService', () => {
       name: 'Ada Byron',
       updatedAt: expect.any(Date),
     })
+    expect(returning.mock.calls[0][0]).not.toHaveProperty('password')
   })
 
   it('deletes a user', async () => {
@@ -169,6 +191,7 @@ describe('userService', () => {
 
     await expect(userService.delete(user.id)).resolves.toEqual(user)
 
-    expect(returning).toHaveBeenCalled()
+    expect(returning).toHaveBeenCalledWith(expect.any(Object))
+    expect(returning.mock.calls[0][0]).not.toHaveProperty('password')
   })
 })

@@ -27,10 +27,11 @@ vi.mock('../user.service.js', () => ({
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
   name: 'Ada Lovelace',
-  password: 'correct horse battery staple',
   createdAt: new Date('2026-08-14T00:00:00.000Z'),
   updatedAt: new Date('2026-08-14T00:00:00.000Z'),
 }
+
+const password = 'correct horse battery staple'
 
 describe('userController', () => {
   beforeEach(() => {
@@ -93,7 +94,7 @@ describe('userController', () => {
       method: 'POST',
       body: JSON.stringify({
         name: user.name,
-        password: user.password,
+        password,
       }),
       headers: {
         'content-type': 'application/json',
@@ -103,7 +104,7 @@ describe('userController', () => {
     expect(response.status).toBe(201)
     expect(userServiceMock.create).toHaveBeenCalledWith({
       name: user.name,
-      password: user.password,
+      password,
     })
     expect(await response.json()).toEqual({
       data: {
@@ -121,7 +122,7 @@ describe('userController', () => {
       method: 'POST',
       body: JSON.stringify({
         name: user.name,
-        password: user.password,
+        password,
       }),
       headers: {
         'content-type': 'application/json',

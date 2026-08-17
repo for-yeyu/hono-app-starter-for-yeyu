@@ -373,7 +373,11 @@ describe('app error handling', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('x-request-id')).toEqual(expect.stringMatching(/^[\w.:-]{21}$/))
+    expect(response.headers.get('x-request-id')).toEqual(
+      expect.stringMatching(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      ),
+    )
   })
 
   it('uses the real ip header when forwarded for is absent', async () => {

@@ -1,20 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 import type { AppEnv } from '#src/lib/logger/request-context.js'
-import { nanoid } from 'nanoid'
 import { type Logger, logger } from '#src/lib/logger/index.js'
-
-const requestIdHeader = 'x-request-id'
-const requestIdPattern = /^[\w.:-]{1,128}$/
-
-const getRequestId = (requestId?: string) => {
-  const trimmedRequestId = requestId?.trim()
-
-  if (trimmedRequestId && requestIdPattern.test(trimmedRequestId)) {
-    return trimmedRequestId
-  }
-
-  return nanoid()
-}
 
 const getIp = (forwardedFor?: string, realIp?: string) => {
   const forwardedIp = forwardedFor?.split(',')[0]?.trim()
@@ -47,13 +33,11 @@ const logRequest = (
 }
 
 export const requestLogger: MiddlewareHandler<AppEnv> = async (c, next) => {
-  const requestId = getRequestId(c.req.header(requestIdHeader))
+  const requestId = c.get('requestId')
   const requestLogger = logger.child({ requestId })
   const startedAt = performance.now()
 
-  c.set('requestId', requestId)
   c.set('logger', requestLogger)
-  c.header(requestIdHeader, requestId)
 
   await next()
 

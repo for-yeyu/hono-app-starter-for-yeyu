@@ -1,5 +1,6 @@
 import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { Hono } from 'hono'
+import { requestId } from 'hono/request-id'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const loggerMock = vi.hoisted(() => {
@@ -26,6 +27,7 @@ import { requestLogger } from '../request-logger.js'
 const createTestApp = () => {
   const app = new Hono<AppEnv>()
 
+  app.use('*', requestId({ limitLength: 128 }))
   app.use('*', requestLogger)
   app.get('/ok', c => c.json({ status: 'ok' }))
   app.get('/bad', c => c.json({ status: 'bad' }, 400))

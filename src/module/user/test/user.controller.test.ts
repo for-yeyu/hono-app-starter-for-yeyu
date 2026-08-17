@@ -8,8 +8,6 @@ vi.hoisted(() => {
 })
 
 import { app } from '#src/app/index.js'
-import { AppError } from '#src/lib/http/app-error.js'
-import { errorCode } from '#src/lib/http/error-code.js'
 
 const userServiceMock = vi.hoisted(() => ({
   findMany: vi.fn(),
@@ -26,7 +24,7 @@ vi.mock('../user.service.js', () => ({
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
   name: 'Ada Lovelace',
-  email: 'ada@example.com',
+  password: 'correct horse battery staple',
   createdAt: new Date('2026-08-14T00:00:00.000Z'),
   updatedAt: new Date('2026-08-14T00:00:00.000Z'),
 }
@@ -92,7 +90,7 @@ describe('userController', () => {
       method: 'POST',
       body: JSON.stringify({
         name: user.name,
-        email: user.email,
+        password: user.password,
       }),
       headers: {
         'content-type': 'application/json',
@@ -102,7 +100,7 @@ describe('userController', () => {
     expect(response.status).toBe(201)
     expect(userServiceMock.create).toHaveBeenCalledWith({
       name: user.name,
-      email: user.email,
+      password: user.password,
     })
     expect(await response.json()).toEqual({
       data: {
@@ -226,7 +224,7 @@ describe('userController', () => {
       method: 'POST',
       body: JSON.stringify({
         name: '',
-        email: 'invalid-email',
+        password: '',
       }),
       headers: {
         'content-type': 'application/json',
@@ -246,7 +244,7 @@ describe('userController', () => {
             message: expect.any(String),
           },
           {
-            path: 'email',
+            path: 'password',
             message: expect.any(String),
           },
         ]),
@@ -276,32 +274,6 @@ describe('userController', () => {
             message: 'At least one field is required',
           },
         ],
-      },
-    })
-  })
-
-  it('returns 409 when email already exists', async () => {
-    userServiceMock.create.mockRejectedValue(
-      new AppError(errorCode.conflict, 'Email already exists'),
-    )
-
-    const response = await app.request('/api/users', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: user.name,
-        email: user.email,
-      }),
-      headers: {
-        'content-type': 'application/json',
-      },
-    })
-
-    expect(response.status).toBe(409)
-    expect(await response.json()).toEqual({
-      success: false,
-      error: {
-        code: 'conflict',
-        message: 'Email already exists',
       },
     })
   })

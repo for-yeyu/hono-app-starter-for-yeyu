@@ -13,12 +13,11 @@ vi.mock('#src/db/index.js', () => ({
 
 import { userService } from '../user.service.js'
 import { users } from '#src/db/schema/index.js'
-import { AppError } from '#src/lib/http/app-error.js'
 
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
   name: 'Ada Lovelace',
-  email: 'ada@example.com',
+  password: 'correct horse battery staple',
   createdAt: new Date('2026-08-14T00:00:00.000Z'),
   updatedAt: new Date('2026-08-14T00:00:00.000Z'),
 }
@@ -59,34 +58,13 @@ describe('userService', () => {
     await expect(
       userService.create({
         name: user.name,
-        email: user.email,
+        password: user.password,
       }),
     ).resolves.toEqual(user)
 
     expect(values).toHaveBeenCalledWith({
       name: user.name,
-      email: user.email,
-    })
-  })
-
-  it('translates a direct unique violation into a conflict error', async () => {
-    const returning = vi.fn().mockRejectedValue(
-      Object.assign(new Error('duplicate email'), {
-        code: '23505',
-      }),
-    )
-    const values = vi.fn().mockReturnValue({ returning })
-    dbMock.insert.mockReturnValue({ values })
-
-    await expect(
-      userService.create({
-        name: user.name,
-        email: user.email,
-      }),
-    ).rejects.toMatchObject({
-      code: 'conflict',
-      message: 'Email already exists',
-      status: 409,
+      password: user.password,
     })
   })
 
@@ -99,7 +77,7 @@ describe('userService', () => {
     await expect(
       userService.create({
         name: user.name,
-        email: user.email,
+        password: user.password,
       }),
     ).rejects.toBe(databaseError)
   })
@@ -120,23 +98,6 @@ describe('userService', () => {
       name: 'Ada Byron',
       updatedAt: expect.any(Date),
     })
-  })
-
-  it('translates a nested unique violation into a conflict error', async () => {
-    const returning = vi.fn().mockRejectedValue(
-      Object.assign(new Error('query failed'), {
-        cause: Object.assign(new Error('duplicate email'), {
-          code: '23505',
-        }),
-      }),
-    )
-    const where = vi.fn().mockReturnValue({ returning })
-    const set = vi.fn().mockReturnValue({ where })
-    dbMock.update.mockReturnValue({ set })
-
-    await expect(userService.update(user.id, { email: user.email })).rejects.toBeInstanceOf(
-      AppError,
-    )
   })
 
   it('deletes a user', async () => {

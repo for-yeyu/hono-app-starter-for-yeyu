@@ -6,7 +6,7 @@ export const userIdParamValidator = z.object({
 
 export const userCreateValidator = z.object({
   name: z.string().trim().min(1).max(100),
-  email: z.email().trim().max(255).toLowerCase(),
+  password: z.string().min(1).max(255),
 })
 
 export const userUpdateValidator = userCreateValidator

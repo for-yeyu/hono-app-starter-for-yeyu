@@ -8,9 +8,9 @@ describe('users schema', () => {
     expect(users.id.notNull).toBe(true)
     expect(users.name.name).toBe('name')
     expect(users.name.length).toBe(100)
-    expect(users.email.name).toBe('email')
-    expect(users.email.length).toBe(255)
-    expect(users.email.isUnique).toBe(true)
+    expect(users.password.name).toBe('password')
+    expect(users.password.length).toBe(255)
+    expect(users.password.isUnique).toBe(false)
   })
 
   it('updates the timestamp with a new date', () => {

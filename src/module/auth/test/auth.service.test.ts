@@ -18,8 +18,18 @@ const bcryptMock = vi.hoisted(() => ({
   compare: vi.fn(),
 }))
 
-const jwtMock = vi.hoisted(() => ({
+const signJwtMock = vi.hoisted(() => ({
+  setProtectedHeader: vi.fn(),
+  setIssuedAt: vi.fn(),
+  setExpirationTime: vi.fn(),
   sign: vi.fn(),
+}))
+
+const joseMock = vi.hoisted(() => ({
+  SignJWT: vi.fn(function () {
+    return signJwtMock
+  }),
+  importPKCS8: vi.fn(),
 }))
 
 vi.mock('#src/db/index.js', () => ({
@@ -30,9 +40,7 @@ vi.mock('bcrypt', () => ({
   default: bcryptMock,
 }))
 
-vi.mock('jsonwebtoken', () => ({
-  default: jwtMock,
-}))
+vi.mock('jose', () => joseMock)
 
 import { authService } from '../auth.service.js'
 import { users } from '#src/db/schema/index.js'
@@ -48,6 +56,11 @@ const user = {
 describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    joseMock.importPKCS8.mockResolvedValue('private-key')
+    signJwtMock.setProtectedHeader.mockReturnValue(signJwtMock)
+    signJwtMock.setIssuedAt.mockReturnValue(signJwtMock)
+    signJwtMock.setExpirationTime.mockReturnValue(signJwtMock)
+    signJwtMock.sign.mockResolvedValue('signed-token')
   })
 
   it('logs in a user and signs an access token', async () => {
@@ -56,7 +69,6 @@ describe('authService', () => {
     const from = vi.fn().mockReturnValue({ where })
     dbMock.select.mockReturnValue({ from })
     bcryptMock.compare.mockResolvedValue(true)
-    jwtMock.sign.mockReturnValue('signed-token')
 
     await expect(
       authService.login({
@@ -73,17 +85,15 @@ describe('authService', () => {
 
     expect(where).toHaveBeenCalledWith(eq(users.name, user.name))
     expect(bcryptMock.compare).toHaveBeenCalledWith('correct password', user.password)
-    expect(jwtMock.sign).toHaveBeenCalledWith(
-      {
-        sub: user.id,
-        name: user.name,
-      },
-      'test-private-key',
-      {
-        algorithm: 'RS256',
-        expiresIn: '7d',
-      },
-    )
+    expect(joseMock.importPKCS8).toHaveBeenCalledWith('test-private-key', 'RS256')
+    expect(joseMock.SignJWT).toHaveBeenCalledWith({
+      sub: user.id,
+      name: user.name,
+    })
+    expect(signJwtMock.setProtectedHeader).toHaveBeenCalledWith({ alg: 'RS256' })
+    expect(signJwtMock.setIssuedAt).toHaveBeenCalledWith()
+    expect(signJwtMock.setExpirationTime).toHaveBeenCalledWith('7d')
+    expect(signJwtMock.sign).toHaveBeenCalledWith('private-key')
   })
 
   it('rejects invalid login credentials', async () => {
@@ -104,6 +114,7 @@ describe('authService', () => {
       status: 401,
     })
 
-    expect(jwtMock.sign).not.toHaveBeenCalled()
+    expect(joseMock.importPKCS8).not.toHaveBeenCalled()
+    expect(joseMock.SignJWT).not.toHaveBeenCalled()
   })
 })

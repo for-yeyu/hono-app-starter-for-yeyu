@@ -1,7 +1,7 @@
 # Hono Backend Starter
 
 A small Hono backend template with PostgreSQL, Drizzle ORM, Zod validation,
-structured Pino logging, unified error responses, Vitest, and a Worker-style
+structured Pino logging, unified error responses, Vitest, and a Node.js
 entrypoint.
 
 ## Quick Start
@@ -40,7 +40,7 @@ pnpm reset:minimal -- --yes
 ```
 
 The script keeps every README file, shared HTTP and logger infrastructure, app
-configuration, Node/Worker entrypoints, and repository engineering configuration.
+configuration, the Node.js entrypoint, and repository engineering configuration.
 It removes:
 
 - database and feature source code under `src/db/` and `src/module/`
@@ -55,9 +55,9 @@ It removes:
 It keeps:
 
 - every `README.md` file, including layer documentation under `src/`
-- `src/app/`, `src/config/app.ts`, `src/index.ts`, and `src/server.ts`
+- `src/app/`, `src/config/app.ts`, and `src/server.ts`
 - shared HTTP error handling, request logging, CORS, and Pino logging
-- Biome, Lefthook, Commitlint, Wrangler, and the root engineering configuration
+- Biome, Lefthook, Commitlint, and the root engineering configuration
 
 The script removes `.env.development` and `.env.production`, then creates
 `.env.example` with only the environment variables required by the minimal app.
@@ -93,8 +93,7 @@ Keep production secrets outside version control and review the existing
 | `pnpm db:push:dev` | Push the development schema |
 | `pnpm db:generate:prod` | Generate a production migration |
 | `pnpm db:migrate:prod` | Apply production migrations |
-| `pnpm start` | Start the compiled Node server |
-| `pnpm preview` | Deploy with Wrangler using production secrets |
+| `pnpm start` | Start the compiled Node.js server |
 
 Agents must follow `AGENTS.md`: they do not run `dev`, `build`, `lint`, or
 dependency installation commands.
@@ -103,8 +102,7 @@ dependency installation commands.
 
 ```text
 src/
-  index.ts                 Worker-style entrypoint exporting the Hono app
-  server.ts                Node entrypoint with graceful pool shutdown
+  server.ts                Node.js entrypoint with graceful pool shutdown
   app/index.ts             Hono app assembly and global middleware
   config/                  Environment parsing and Zod validators
   db/                      PostgreSQL pool, Drizzle client, and schema
@@ -167,10 +165,10 @@ contract with `app.request()`.
 
 ## Runtime and Database
 
-`src/server.ts` runs Hono on Node with `@hono/node-server` and `pg`. `src/index.ts`
-and `wrangler.jsonc` expose a Worker-style entrypoint, but the current
-PostgreSQL client is Node-specific. Replace the database adapter and verify
-logger/runtime behavior before deploying to Workers.
+`src/server.ts` runs Hono on Node.js with `@hono/node-server` and `pg`. Production
+deployment must use a Node.js host or container that runs the compiled server.
+Set the required environment variables in the hosting platform, run
+`pnpm build`, and use `pnpm start` as the start command.
 
 Update Drizzle schema files first, then generate and apply a migration. Use
 `db:push` only for early development when a migration file is not yet needed.

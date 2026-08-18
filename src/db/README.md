@@ -18,6 +18,5 @@ properties and explicit snake_case names for PostgreSQL columns when needed.
 Use `db:push` for early local iteration only. Do not hand-edit generated
 migrations unless the change explicitly requires a reviewed SQL adjustment.
 
-The current adapter is `drizzle-orm/node-postgres` with `pg`, so it is Node
-runtime specific. The Worker entrypoint needs a binding-compatible adapter before
-production Worker deployment.
+The current adapter is `drizzle-orm/node-postgres` with `pg`, so it runs in the
+Node.js runtime.

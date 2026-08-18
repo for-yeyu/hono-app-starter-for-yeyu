@@ -11,11 +11,10 @@ and limited to application composition:
 Feature behavior belongs in `src/module/<feature>`, not in this file. A new
 resource should normally add a controller module and one route mount here.
 
-## Entrypoints
+## Entrypoint
 
-- `src/index.ts` exports the Hono app for a Worker-style runtime.
-- `src/server.ts` starts the Node server, reads the configured port, logs startup,
-  and closes the HTTP server and PostgreSQL pool on `SIGINT` or `SIGTERM`.
+`src/server.ts` starts the Node.js server, reads the configured port, logs
+startup, and closes the HTTP server and PostgreSQL pool on `SIGINT` or `SIGTERM`.
 
-The Hono app must remain reusable by both entrypoints. Do not start a server or
-open a second database connection from `src/index.ts`.
+Keep the Hono app reusable from the Node.js entrypoint. Do not open a second
+database connection from the entrypoint.

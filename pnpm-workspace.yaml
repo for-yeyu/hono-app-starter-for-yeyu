@@ -9,4 +9,3 @@ allowBuilds:
   bcrypt: true
   esbuild: true
   lefthook: true
-  workerd: true

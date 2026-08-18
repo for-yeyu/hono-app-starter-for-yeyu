@@ -37,8 +37,7 @@ pnpm test:coverage
 
 ```text
 src/
-  index.ts                 Worker-style entrypoint exporting the Hono app
-  server.ts                Node entrypoint with graceful shutdown
+  server.ts                Node.js entrypoint with graceful shutdown
   app/index.ts             Hono app assembly, middleware, routes, and health endpoints
   config/                  Startup environment parsing and Zod validators
   db/                      PostgreSQL pool, Drizzle client, schema, and migrations
@@ -63,11 +62,10 @@ src/app/index.ts
   status codes, and response bodies.
 - Keep business rules and database operations in feature services.
 - Keep reusable HTTP behavior in `src/lib/http`, not in individual controllers.
-- `src/index.ts` is the Worker-style export. `src/server.ts` owns the Node server,
-  port selection, logger startup message, and pool shutdown.
-- The current database client uses the Node `pg` driver. Treat Worker deployment
-  as incomplete until the database adapter is replaced with a binding-compatible
-  implementation.
+- `src/server.ts` owns the Node.js server, port selection, logger startup message,
+  and pool shutdown.
+- The current database client uses the Node `pg` driver and requires a Node.js
+  runtime or a compatible container.
 
 ## Code Style
 

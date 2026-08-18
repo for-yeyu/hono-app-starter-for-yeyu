@@ -1,6 +1,7 @@
 {
   "name": "hono-app-starter-for-yeyu",
   "type": "module",
+  "main": "src/index.ts",
   "imports": {
     "#src/*": {
       "development": "./src/*",
@@ -14,8 +15,7 @@
   "scripts": {
     "dev": "node --conditions=development --env-file=.env.development --import tsx --watch src/server.ts",
     "build": "tsc",
-    "start": "node --env-file=.env.production dist/server.js",
-    "preview": "wrangler deploy --secrets-file .env.production",
+    "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -62,7 +62,6 @@
     "pino-pretty": "^13.1.2",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10",
-    "wrangler": "^4.123.0"
+    "vitest": "^4.1.10"
   }
 }

@@ -113,6 +113,7 @@ const dependenciesToRemove = new Set([
   '@vitest/coverage-v8',
   'drizzle-kit',
   'vitest',
+  'wrangler',
 ])
 
 for (const scriptName of Object.keys(packageJson.scripts)) {
@@ -125,8 +126,6 @@ for (const dependencyName of dependenciesToRemove) {
   delete packageJson.dependencies[dependencyName]
   delete packageJson.devDependencies[dependencyName]
 }
-
-packageJson.scripts.preview = 'wrangler deploy'
 
 writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
@@ -292,7 +291,6 @@ const minimalReadme = [
   '| `pnpm dev` | Start the Node server with the development environment |',
   '| `pnpm build` | Compile TypeScript to `dist` |',
   '| `pnpm start` | Start the compiled Node server |',
-  '| `pnpm preview` | Deploy the Worker entrypoint with Wrangler |',
   '',
   'The reset script keeps this README and the shared application infrastructure.',
   'Add feature modules, database access, and tests only when the project needs them.',

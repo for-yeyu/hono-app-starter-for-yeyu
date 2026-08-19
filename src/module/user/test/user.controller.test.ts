@@ -328,7 +328,7 @@ describe('app error handling', () => {
   })
 
   it('returns the application metadata from the root route', async () => {
-    const response = await app.request('/')
+    const response = await app.request('/api')
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
@@ -338,7 +338,7 @@ describe('app error handling', () => {
   })
 
   it('returns a unified 404 response for unmatched routes', async () => {
-    const response = await app.request('/missing')
+    const response = await app.request('/api/missing')
 
     expect(response.status).toBe(404)
     expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
@@ -353,7 +353,7 @@ describe('app error handling', () => {
 
   it('reuses a valid request id header', async () => {
     const requestId = 'test-request-id'
-    const response = await app.request('/health', {
+    const response = await app.request('/api/health', {
       headers: {
         'x-request-id': requestId,
       },
@@ -364,7 +364,7 @@ describe('app error handling', () => {
   })
 
   it('generates a request id for an invalid header and records request metadata', async () => {
-    const response = await app.request('/health', {
+    const response = await app.request('/api/health', {
       headers: {
         'x-request-id': 'invalid request id',
         'x-forwarded-for': '192.0.2.10, 198.51.100.20',
@@ -381,7 +381,7 @@ describe('app error handling', () => {
   })
 
   it('uses the real ip header when forwarded for is absent', async () => {
-    const response = await app.request('/health', {
+    const response = await app.request('/api/health', {
       headers: {
         'x-real-ip': '192.0.2.20',
       },
@@ -391,7 +391,7 @@ describe('app error handling', () => {
   })
 
   it('allows configured cors origins', async () => {
-    const response = await app.request('/health', {
+    const response = await app.request('/api/health', {
       method: 'OPTIONS',
       headers: {
         origin: 'http://localhost:3000',
@@ -408,7 +408,7 @@ describe('app error handling', () => {
   })
 
   it('does not allow unconfigured cors origins', async () => {
-    const response = await app.request('/health', {
+    const response = await app.request('/api/health', {
       method: 'OPTIONS',
       headers: {
         origin: 'http://localhost:5173',

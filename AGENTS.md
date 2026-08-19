@@ -39,11 +39,11 @@ pnpm test:coverage
 src/
   server.ts                Node.js entrypoint with graceful shutdown
   app/index.ts             Hono app assembly, middleware, routes, and health endpoints
-  config/                  Startup environment parsing and Zod validators
+  config/                  Startup environment parsing and Zod schemas
   db/                      PostgreSQL pool, Drizzle client, schema, and migrations
   lib/http/                Request IDs, logging middleware, errors, and validation
   lib/logger/              Pino logger and Hono request context types
-  module/<feature>/        Feature controller, service, validator, and tests
+  module/<feature>/        Feature controller, service, schema, and tests
 ```
 
 The normal request path is:
@@ -51,7 +51,7 @@ The normal request path is:
 ```text
 src/app/index.ts
   -> src/module/<feature>/<feature>.controller.ts
-  -> src/module/<feature>/<feature>.validator.ts
+  -> src/module/<feature>/<feature>.schema.ts
   -> src/module/<feature>/<feature>.service.ts
   -> src/db/index.ts and src/db/schema/*
 ```
@@ -110,7 +110,7 @@ src/app/index.ts
 - Put tests in a `test/` directory beside the source module.
 - Name a test after its source file and append `.test.ts`, for example:
   `src/module/user/test/user.controller.test.ts`.
-- Test pure functions, config validators, HTTP infrastructure, services at a
+- Test pure functions, config schemas, HTTP infrastructure, services at a
   mocked database boundary, and Hono route contracts.
 - Use `app.request()` for API behavior tests. Assert status, response shape,
   validation behavior, error codes, and important headers.
@@ -124,7 +124,7 @@ Project-specific skills live in `.agents/skills`:
 
 - `feature-chain-conventions`: coordinate a change that crosses several layers
 - `app-conventions`: change Hono app assembly, entrypoints, middleware, or routes
-- `module-conventions`: add a feature controller, service, validator, or module
+- `module-conventions`: add a feature controller, service, schema, or module
 - `config-conventions`: change environment parsing and startup validation
 - `db-conventions`: change Drizzle schema, database access, or migrations
 - `http-infrastructure-conventions`: change errors, validation, request IDs, or logs

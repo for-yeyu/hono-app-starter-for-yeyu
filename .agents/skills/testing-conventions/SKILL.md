@@ -1,6 +1,6 @@
 ---
 name: testing-conventions
-description: Add focused Vitest coverage for Hono backend behavior, pure functions, configuration validators, services, and HTTP infrastructure. Use when adding or changing tests, route contracts, validation behavior, error responses, or mocked database boundaries.
+description: Add focused Vitest coverage for Hono backend behavior, pure functions, configuration schemas, services, and HTTP infrastructure. Use when adding or changing tests, route contracts, validation behavior, error responses, or mocked database boundaries.
 ---
 
 # Testing Conventions
@@ -35,7 +35,7 @@ focus on the HTTP contract. Do not mock the behavior being asserted.
 
 ## Pure and Service Tests
 
-Test pure validators and helpers with direct inputs and outputs. For services,
+Test pure schemas and helpers with direct inputs and outputs. For services,
 mock the database transport boundary and assert meaningful query behavior or
 public results, not incidental local implementation details.
 

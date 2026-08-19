@@ -1,6 +1,6 @@
 ---
 name: config-conventions
-description: Maintain startup environment parsing and Zod validation for this Hono service. Use when adding or changing environment variables, `src/config/*`, config validators, runtime settings, CORS origins, or database connection configuration.
+description: Maintain startup environment parsing and Zod schemas for this Hono service. Use when adding or changing environment variables, `src/config/*`, config schemas, runtime settings, CORS origins, or database connection configuration.
 ---
 
 # Config Conventions
@@ -13,7 +13,7 @@ values.
 - `src/config/app.ts`: parse `Environment`, `ServerPort`, `ServiceName`, and
   `CorsOrigins`.
 - `src/config/database.ts`: parse `DatabaseUrl`.
-- `src/config/validator/*`: define the Zod schemas.
+- `src/config/schema/*`: define the Zod schemas.
 - `src/config/index.ts`: export the established config objects.
 
 Keep process environment access in config modules. Other modules should import
@@ -30,4 +30,4 @@ parse errors, or catch configuration errors locally. Use explicit Zod coercion
 only where the runtime contract requires it, such as the numeric Node port.
 
 When changing a pure validation rule, add focused Vitest coverage in a nested
-`test/` directory beside the validator.
+`test/` directory beside the schema.

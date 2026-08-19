@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { databaseConfigValidator } from '../database-validator.js'
+import { databaseConfigSchema } from '../database.schema.js'
 
-describe('databaseConfigValidator', () => {
+describe('databaseConfigSchema', () => {
   it('accepts a PostgreSQL connection URL', () => {
     expect(
-      databaseConfigValidator.parse({
+      databaseConfigSchema.parse({
         url: 'postgres://user:password@localhost:5432/app',
       }),
     ).toEqual({
@@ -13,7 +13,7 @@ describe('databaseConfigValidator', () => {
   })
 
   it('rejects an invalid database URL', () => {
-    const result = databaseConfigValidator.safeParse({
+    const result = databaseConfigSchema.safeParse({
       url: 'not-a-url',
     })
 

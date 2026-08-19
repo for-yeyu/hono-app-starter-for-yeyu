@@ -1,5 +1,5 @@
-import { databaseConfigValidator } from './validator/database-validator.js'
+import { databaseConfigSchema } from './schema/database.schema.js'
 
-export const databaseConfig = databaseConfigValidator.parse({
+export const databaseConfig = databaseConfigSchema.parse({
   url: process.env.DatabaseUrl,
 })

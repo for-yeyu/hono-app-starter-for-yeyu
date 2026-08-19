@@ -1,7 +1,7 @@
 import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { Hono } from 'hono'
+import { userCreateSchema, userIdParamSchema, userUpdateSchema } from './user.schema.js'
 import { userService } from './user.service.js'
-import { userCreateValidator, userIdParamValidator, userUpdateValidator } from './user.validator.js'
 import { AppError } from '#src/lib/http/app-error.js'
 import { errorCode } from '#src/lib/http/error-code.js'
 import { zValidator } from '#src/lib/http/z-validator.js'
@@ -14,7 +14,7 @@ userController.get('/', async c => {
   })
 })
 
-userController.get('/:id', zValidator('param', userIdParamValidator), async c => {
+userController.get('/:id', zValidator('param', userIdParamSchema), async c => {
   const user = await userService.findById(c.req.valid('param').id)
 
   if (!user) {
@@ -26,7 +26,7 @@ userController.get('/:id', zValidator('param', userIdParamValidator), async c =>
   })
 })
 
-userController.post('/', zValidator('json', userCreateValidator), async c => {
+userController.post('/', zValidator('json', userCreateSchema), async c => {
   const user = await userService.create(c.req.valid('json'))
 
   return c.json(
@@ -39,8 +39,8 @@ userController.post('/', zValidator('json', userCreateValidator), async c => {
 
 userController.patch(
   '/:id',
-  zValidator('param', userIdParamValidator),
-  zValidator('json', userUpdateValidator),
+  zValidator('param', userIdParamSchema),
+  zValidator('json', userUpdateSchema),
   async c => {
     const user = await userService.update(c.req.valid('param').id, c.req.valid('json'))
 
@@ -54,7 +54,7 @@ userController.patch(
   },
 )
 
-userController.delete('/:id', zValidator('param', userIdParamValidator), async c => {
+userController.delete('/:id', zValidator('param', userIdParamSchema), async c => {
   const user = await userService.delete(c.req.valid('param').id)
 
   if (!user) {

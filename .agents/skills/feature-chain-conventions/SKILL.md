@@ -12,7 +12,7 @@ Use this skill to keep cross-layer changes directional and complete.
 1. Read `AGENTS.md` and the layer-specific skills for every directory the change
    will touch.
 2. Trace the current request path:
-   `src/app/index.ts -> module controller -> validator/service -> db`.
+   `src/app/index.ts -> module controller -> schema/service -> db`.
 3. Define the public HTTP contract before editing: route, method, input,
    success status/body, expected error codes, and affected headers.
 4. Change the smallest layer that owns each responsibility:
@@ -35,7 +35,7 @@ Keep this direction:
 ```text
 app -> module -> lib/config/db
 module service -> db
-module controller -> module validator + service + lib/http
+module controller -> module schema + service + lib/http
 ```
 
 Do not make `src/app` contain business logic, make controllers query `db`

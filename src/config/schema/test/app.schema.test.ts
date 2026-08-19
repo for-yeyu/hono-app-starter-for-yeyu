@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { appConfigValidator } from '../app-validator.js'
+import { appConfigSchema } from '../app.schema.js'
 
-describe('appConfigValidator', () => {
+describe('appConfigSchema', () => {
   it('coerces the port and parses multiple cors origins', () => {
-    const result = appConfigValidator.safeParse({
+    const result = appConfigSchema.safeParse({
       environment: 'development',
       port: '3000',
       serviceName: 'hono-api',
@@ -27,7 +27,7 @@ describe('appConfigValidator', () => {
   })
 
   it('accepts a wildcard cors origin', () => {
-    const result = appConfigValidator.safeParse({
+    const result = appConfigSchema.safeParse({
       environment: 'production',
       port: 443,
       corsOrigins: '*',
@@ -43,7 +43,7 @@ describe('appConfigValidator', () => {
   })
 
   it('rejects invalid runtime configuration', () => {
-    const result = appConfigValidator.safeParse({
+    const result = appConfigSchema.safeParse({
       environment: 'staging',
       port: 0,
       corsOrigins: 'not-an-origin',
@@ -53,7 +53,7 @@ describe('appConfigValidator', () => {
   })
 
   it('rejects missing jwt keys', () => {
-    const result = appConfigValidator.safeParse({
+    const result = appConfigSchema.safeParse({
       environment: 'development',
       port: 3000,
       corsOrigins: 'http://localhost:3000',
@@ -63,7 +63,7 @@ describe('appConfigValidator', () => {
   })
 
   it('normalizes escaped newlines in jwt keys', () => {
-    const result = appConfigValidator.parse({
+    const result = appConfigSchema.parse({
       environment: 'development',
       port: 3000,
       corsOrigins: 'http://localhost:3000',

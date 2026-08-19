@@ -1,6 +1,6 @@
-import { appConfigValidator } from './validator/app-validator.js'
+import { appConfigSchema } from './schema/app.schema.js'
 
-export const appConfig = appConfigValidator.parse({
+export const appConfig = appConfigSchema.parse({
   environment: process.env.Environment,
   port: process.env.ServerPort,
   serviceName: process.env.ServiceName,

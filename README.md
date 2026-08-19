@@ -45,7 +45,7 @@ It removes:
 
 - database and feature source code under `src/db/` and `src/module/`
 - `drizzle/` and `drizzle.config.ts`
-- database config and validator files
+- database config and schema files
 - `src/**/test/`, `vitest.config.ts`, coverage artifacts, and `dist/`
 - `src/lib/http/z-validator.ts`
 - `refer/`
@@ -104,18 +104,18 @@ dependency installation commands.
 src/
   server.ts                Node.js entrypoint with graceful pool shutdown
   app/index.ts             Hono app assembly and global middleware
-  config/                  Environment parsing and Zod validators
+  config/                  Environment parsing and Zod schemas
   db/                      PostgreSQL pool, Drizzle client, and schema
   lib/http/                Request IDs, errors, request logging, and validation
   lib/logger/              Pino logger and request context types
-  module/<feature>/        Controller, service, validator, and tests
+  module/<feature>/        Controller, service, schema, and tests
 drizzle/                   Generated SQL migrations and snapshots
 ```
 
 Keep the application flow directional:
 
 ```text
-app -> module controller -> module validator/service -> db
+app -> module controller -> module schema/service -> db
 ```
 
 Controllers own HTTP concerns. Services own business rules and database
@@ -154,7 +154,7 @@ Create a directory under `src/module/<feature>`:
 src/module/<feature>/
   <feature>.controller.ts
   <feature>.service.ts
-  <feature>.validator.ts
+  <feature>.schema.ts
   test/
     <feature>.controller.test.ts
 ```

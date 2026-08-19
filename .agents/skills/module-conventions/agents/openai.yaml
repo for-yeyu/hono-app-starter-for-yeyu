@@ -1,4 +1,4 @@
 interface:
   display_name: "Feature Module Conventions"
-  short_description: "Organize controllers, services, validators, and tests"
+  short_description: "Organize controllers, services, schemas, and tests"
   default_prompt: "Use $module-conventions to add or update a feature module."

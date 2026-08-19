@@ -1,6 +1,6 @@
 ---
 name: module-conventions
-description: Organize Hono feature modules with controllers, Zod validators, services, and colocated tests. Use when adding or changing a business feature directory under `src/module`, including its routes, request input, business rules, or persistence calls.
+description: Organize Hono feature modules with controllers, Zod schemas, services, and colocated tests. Use when adding or changing a business feature directory under `src/module`, including its routes, request input, business rules, or persistence calls.
 ---
 
 # Module Conventions
@@ -11,7 +11,7 @@ Put each business feature under `src/module/<feature>`:
 src/module/<feature>/
   <feature>.controller.ts
   <feature>.service.ts
-  <feature>.validator.ts
+  <feature>.schema.ts
   test/
     <feature>.controller.test.ts
 ```
@@ -20,7 +20,7 @@ src/module/<feature>/
 
 - Controller: define Hono routes, attach validation middleware, call the service,
   choose status codes, and shape successful responses.
-- Validator: define Zod schemas for params, JSON bodies, and other request input.
+- Schema: define Zod schemas for params, JSON bodies, and other request input.
 - Service: implement business rules and database operations.
 - Test: exercise the public route contract through `app.request()`.
 

@@ -1,7 +1,6 @@
 import type { AppEnv } from '#src/lib/logger/request-context.js'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { requestId } from 'hono/request-id'
 import { appConfig } from '#src/config/index.js'
 import { handleError, handleNotFound } from '#src/lib/http/error-response.js'
 import { requestLogger } from '#src/lib/http/request-logger.js'
@@ -12,7 +11,6 @@ export const app = new Hono<AppEnv>().basePath('/api')
 
 app.onError(handleError)
 app.notFound(handleNotFound)
-app.use('*', requestId({ limitLength: 128 }))
 app.use('*', requestLogger)
 app.use(
   '*',

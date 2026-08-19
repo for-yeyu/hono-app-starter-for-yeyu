@@ -24,14 +24,13 @@ export class AppError extends Error {
     code: ErrorCode,
     message: string,
     options: {
-      status?: ContentfulStatusCode
       details?: ErrorDetail[]
     } = {},
   ) {
     super(message)
     this.name = 'AppError'
     this.code = code
-    this.status = options.status ?? errorStatusByCode[code]
+    this.status = errorStatusByCode[code]
     this.details = options.details
   }
 }

@@ -1,12 +1,9 @@
 import type { MiddlewareHandler } from 'hono'
 import type { AppEnv } from '#src/lib/logger/request-context.js'
+import { requestId } from 'hono/request-id'
 import { type Logger, logger } from '#src/lib/logger/index.js'
 
-const getIp = (forwardedFor?: string, realIp?: string) => {
-  const forwardedIp = forwardedFor?.split(',')[0]?.trim()
-
-  return forwardedIp || realIp || undefined
-}
+const requestIdMiddleware = requestId({ limitLength: 128 })
 
 const logRequest = (
   requestLogger: Logger,
@@ -16,7 +13,6 @@ const logRequest = (
     status: number
     durationMs: number
     userAgent?: string
-    ip?: string
   },
 ) => {
   if (data.status >= 500) {
@@ -33,24 +29,21 @@ const logRequest = (
 }
 
 export const requestLogger: MiddlewareHandler<AppEnv> = async (c, next) => {
-  const requestId = c.get('requestId')
-  const requestLogger = logger.child({ requestId })
-  const startedAt = performance.now()
+  await requestIdMiddleware(c, async () => {
+    const requestId = c.get('requestId')
+    const requestLoggerInstance = logger.child({ requestId })
+    const startedAt = performance.now()
 
-  c.set('logger', requestLogger)
+    c.set('logger', requestLoggerInstance)
 
-  await next()
+    await next()
 
-  if (c.error) {
-    return
-  }
-
-  logRequest(requestLogger, {
-    method: c.req.method,
-    path: c.req.path,
-    status: c.res.status,
-    durationMs: Math.round(performance.now() - startedAt),
-    userAgent: c.req.header('user-agent'),
-    ip: getIp(c.req.header('x-forwarded-for'), c.req.header('x-real-ip')),
+    logRequest(requestLoggerInstance, {
+      method: c.req.method,
+      path: c.req.path,
+      status: c.res.status,
+      durationMs: Math.round(performance.now() - startedAt),
+      userAgent: c.req.header('user-agent'),
+    })
   })
 }

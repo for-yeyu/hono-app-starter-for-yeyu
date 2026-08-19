@@ -327,6 +327,26 @@ describe('app error handling', () => {
     vi.clearAllMocks()
   })
 
+  it('returns a unified 400 response for malformed JSON', async () => {
+    const response = await app.request('/api/users', {
+      method: 'POST',
+      body: '{',
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    expect(response.status).toBe(400)
+    expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
+    expect(await response.json()).toEqual({
+      success: false,
+      error: {
+        code: 'bad_request',
+        message: 'Invalid request',
+      },
+    })
+  })
+
   it('returns the application metadata from the root route', async () => {
     const response = await app.request('/api')
 
@@ -363,12 +383,10 @@ describe('app error handling', () => {
     expect(response.headers.get('x-request-id')).toBe(requestId)
   })
 
-  it('generates a request id for an invalid header and records request metadata', async () => {
+  it('generates a request id for an invalid header', async () => {
     const response = await app.request('/api/health', {
       headers: {
         'x-request-id': 'invalid request id',
-        'x-forwarded-for': '192.0.2.10, 198.51.100.20',
-        'user-agent': 'vitest',
       },
     })
 
@@ -378,16 +396,6 @@ describe('app error handling', () => {
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
       ),
     )
-  })
-
-  it('uses the real ip header when forwarded for is absent', async () => {
-    const response = await app.request('/api/health', {
-      headers: {
-        'x-real-ip': '192.0.2.20',
-      },
-    })
-
-    expect(response.status).toBe(200)
   })
 
   it('allows configured cors origins', async () => {

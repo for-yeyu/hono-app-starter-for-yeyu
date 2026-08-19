@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { AppEnv } from '#src/lib/logger/request-context.js'
+import { HTTPException } from 'hono/http-exception'
 import { AppError, type ErrorDetail } from './app-error.js'
 import { type ErrorCode, errorCode } from './error-code.js'
 
@@ -70,6 +71,20 @@ export const handleError = (err: Error, c: Context<AppEnv>) => {
     })
 
     return errorResponse(c, err)
+  }
+
+  if (err instanceof HTTPException && err.status === 400) {
+    logError(c, {
+      code: errorCode.badRequest,
+      status: 400,
+      errorMessage: err.message,
+    })
+
+    return errorResponse(c, {
+      code: errorCode.badRequest,
+      message: 'Invalid request',
+      status: 400,
+    })
   }
 
   logError(c, {

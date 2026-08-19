@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { eq } from 'drizzle-orm'
-import { importPKCS8, SignJWT } from 'jose'
+import { sign } from 'hono/jwt'
 import { appConfig } from '#src/config/index.js'
 import { db } from '#src/db/index.js'
 import { users } from '#src/db/schema/index.js'
@@ -15,15 +15,16 @@ export const authService = {
       throw new AppError(errorCode.unauthorized, 'Invalid credentials')
     }
 
-    const privateKey = await importPKCS8(appConfig.jwtPrivateKey, 'RS256')
-    const accessToken = await new SignJWT({
-      sub: user.id,
-      name: user.name,
-    })
-      .setProtectedHeader({ alg: 'RS256' })
-      .setIssuedAt()
-      .setExpirationTime('7d')
-      .sign(privateKey)
+    const accessToken = await sign(
+      {
+        sub: user.id,
+        name: user.name,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      },
+      appConfig.jwtPrivateKey,
+      'RS256',
+    )
 
     return {
       accessToken,

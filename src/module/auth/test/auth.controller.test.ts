@@ -16,16 +16,15 @@ const authServiceMock = vi.hoisted(() => ({
   login: vi.fn(),
 }))
 
-const joseMock = vi.hoisted(() => ({
-  importSPKI: vi.fn(),
-  jwtVerify: vi.fn(),
+const jwtMock = vi.hoisted(() => ({
+  verify: vi.fn(),
 }))
 
 vi.mock('../auth.service.js', () => ({
   authService: authServiceMock,
 }))
 
-vi.mock('jose', () => joseMock)
+vi.mock('hono/jwt', () => jwtMock)
 
 const user = {
   id: 'b8ae72c2-a34f-4b77-9b83-6f2071bb6f8d',
@@ -126,12 +125,9 @@ describe('authController', () => {
   })
 
   it('returns the current user with a valid token', async () => {
-    joseMock.importSPKI.mockResolvedValue('public-key')
-    joseMock.jwtVerify.mockResolvedValue({
-      payload: {
-        sub: user.id,
-        name: user.name,
-      },
+    jwtMock.verify.mockResolvedValue({
+      sub: user.id,
+      name: user.name,
     })
 
     const response = await app.request('/api/auth/me', {
@@ -142,10 +138,7 @@ describe('authController', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('x-request-id')).toEqual(expect.any(String))
-    expect(joseMock.importSPKI).toHaveBeenCalledWith('test-public-key', 'RS256')
-    expect(joseMock.jwtVerify).toHaveBeenCalledWith('valid-token', 'public-key', {
-      algorithms: ['RS256'],
-    })
+    expect(jwtMock.verify).toHaveBeenCalledWith('valid-token', 'test-public-key', 'RS256')
     expect(await response.json()).toEqual({
       data: user,
     })
@@ -155,8 +148,7 @@ describe('authController', () => {
     const response = await app.request('/api/auth/me')
 
     expect(response.status).toBe(401)
-    expect(joseMock.importSPKI).not.toHaveBeenCalled()
-    expect(joseMock.jwtVerify).not.toHaveBeenCalled()
+    expect(jwtMock.verify).not.toHaveBeenCalled()
     expect(await response.json()).toEqual({
       success: false,
       error: {
@@ -167,8 +159,7 @@ describe('authController', () => {
   })
 
   it('rejects an invalid token', async () => {
-    joseMock.importSPKI.mockResolvedValue('public-key')
-    joseMock.jwtVerify.mockRejectedValue(new Error('invalid token'))
+    jwtMock.verify.mockRejectedValue(new Error('invalid token'))
 
     const response = await app.request('/api/auth/me', {
       headers: {

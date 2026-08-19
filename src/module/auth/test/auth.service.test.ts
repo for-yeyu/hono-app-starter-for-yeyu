@@ -18,18 +18,8 @@ const bcryptMock = vi.hoisted(() => ({
   compare: vi.fn(),
 }))
 
-const signJwtMock = vi.hoisted(() => ({
-  setProtectedHeader: vi.fn(),
-  setIssuedAt: vi.fn(),
-  setExpirationTime: vi.fn(),
+const jwtMock = vi.hoisted(() => ({
   sign: vi.fn(),
-}))
-
-const joseMock = vi.hoisted(() => ({
-  SignJWT: vi.fn(function () {
-    return signJwtMock
-  }),
-  importPKCS8: vi.fn(),
 }))
 
 vi.mock('#src/db/index.js', () => ({
@@ -40,7 +30,7 @@ vi.mock('bcrypt', () => ({
   default: bcryptMock,
 }))
 
-vi.mock('jose', () => joseMock)
+vi.mock('hono/jwt', () => jwtMock)
 
 import { authService } from '../auth.service.js'
 import { users } from '#src/db/schema/index.js'
@@ -56,11 +46,7 @@ const user = {
 describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    joseMock.importPKCS8.mockResolvedValue('private-key')
-    signJwtMock.setProtectedHeader.mockReturnValue(signJwtMock)
-    signJwtMock.setIssuedAt.mockReturnValue(signJwtMock)
-    signJwtMock.setExpirationTime.mockReturnValue(signJwtMock)
-    signJwtMock.sign.mockResolvedValue('signed-token')
+    jwtMock.sign.mockResolvedValue('signed-token')
   })
 
   it('logs in a user and signs an access token', async () => {
@@ -85,15 +71,16 @@ describe('authService', () => {
 
     expect(where).toHaveBeenCalledWith(eq(users.name, user.name))
     expect(bcryptMock.compare).toHaveBeenCalledWith('correct password', user.password)
-    expect(joseMock.importPKCS8).toHaveBeenCalledWith('test-private-key', 'RS256')
-    expect(joseMock.SignJWT).toHaveBeenCalledWith({
-      sub: user.id,
-      name: user.name,
-    })
-    expect(signJwtMock.setProtectedHeader).toHaveBeenCalledWith({ alg: 'RS256' })
-    expect(signJwtMock.setIssuedAt).toHaveBeenCalledWith()
-    expect(signJwtMock.setExpirationTime).toHaveBeenCalledWith('7d')
-    expect(signJwtMock.sign).toHaveBeenCalledWith('private-key')
+    expect(jwtMock.sign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: user.id,
+        name: user.name,
+        iat: expect.any(Number),
+        exp: expect.any(Number),
+      }),
+      'test-private-key',
+      'RS256',
+    )
   })
 
   it('rejects invalid login credentials', async () => {
@@ -114,7 +101,6 @@ describe('authService', () => {
       status: 401,
     })
 
-    expect(joseMock.importPKCS8).not.toHaveBeenCalled()
-    expect(joseMock.SignJWT).not.toHaveBeenCalled()
+    expect(jwtMock.sign).not.toHaveBeenCalled()
   })
 })

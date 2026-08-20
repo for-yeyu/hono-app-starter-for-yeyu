@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from 'hono'
-import type { AppEnv } from '#src/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/http/request-context.js'
 import { requestId } from 'hono/request-id'
 import { type Logger, logger } from '#src/lib/logger/index.js'
 

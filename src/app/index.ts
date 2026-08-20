@@ -1,4 +1,4 @@
-import type { AppEnv } from '#src/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/http/request-context.js'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { appConfig } from '#src/config/index.js'

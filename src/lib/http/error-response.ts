@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import type { AppEnv } from '#src/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/http/request-context.js'
 import { HTTPException } from 'hono/http-exception'
 import { AppError, type ErrorDetail } from './app-error.js'
 import { type ErrorCode, errorCode } from './error-code.js'

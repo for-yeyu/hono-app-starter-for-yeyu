@@ -8,6 +8,7 @@ feature controllers or services.
 `src/lib/http` owns:
 
 - `request-logger.ts`: request IDs, request-scoped loggers, timing, and status-based logs
+- `request-context.ts`: global Hono `AppEnv` variables for request handlers and middleware
 - `app-error.ts`: expected application error type
 - `error-code.ts`: allowed public error codes
 - `error-response.ts`: global error and not-found responses
@@ -20,9 +21,12 @@ boundary.
 
 ## Logger
 
-`src/lib/logger/index.ts` configures the Pino logger from `appConfig`.
-`request-context.ts` defines the Hono `AppEnv` variables. Request handlers should
-use `c.get('logger')` so logs carry the request ID and shared metadata.
+`src/lib/logger/index.ts` configures the Pino logger from `appConfig`. Request
+handlers should use `c.get('logger')` so logs carry the request ID and shared
+metadata.
+
+Feature-specific context variables should be modeled in the owning feature
+module and composed with the global `AppEnv`.
 
 Keep this layer runtime-aware and small. Do not move feature-specific business
 rules into infrastructure helpers.

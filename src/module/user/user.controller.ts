@@ -1,4 +1,4 @@
-import type { AppEnv } from '#src/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/http/request-context.js'
 import { Hono } from 'hono'
 import { userCreateSchema, userIdParamSchema, userUpdateSchema } from './user.schema.js'
 import { userService } from './user.service.js'

@@ -1,4 +1,4 @@
-import type { AppEnv } from '#src/lib/logger/request-context.js'
+import type { AppEnv } from '#src/lib/http/request-context.js'
 import { Hono } from 'hono'
 import { authMiddleware } from './auth.middleware.js'
 import { authLoginSchema } from './auth.schema.js'

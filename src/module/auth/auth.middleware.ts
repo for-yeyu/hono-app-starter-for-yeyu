@@ -1,11 +1,11 @@
-import type { MiddlewareHandler } from 'hono'
 import type { AuthEnv } from './auth-context.js'
+import { createMiddleware } from 'hono/factory'
 import { verify } from 'hono/jwt'
 import { appConfig } from '#src/config/index.js'
 import { AppError } from '#src/lib/http/app-error.js'
 import { errorCode } from '#src/lib/http/error-code.js'
 
-export const authMiddleware: MiddlewareHandler<AuthEnv> = async (c, next) => {
+export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
   const authorization = c.req.header('Authorization')
 
   if (!authorization?.startsWith('Bearer ')) {
@@ -35,4 +35,4 @@ export const authMiddleware: MiddlewareHandler<AuthEnv> = async (c, next) => {
   })
 
   await next()
-}
+})

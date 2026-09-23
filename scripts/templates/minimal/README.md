@@ -45,7 +45,7 @@ are not required by this minimal app.
 | `pnpm test:watch` | Run Vitest in watch mode |
 | `pnpm test:coverage` | Run Vitest with coverage |
 | `pnpm commit` / `pnpm qwer` | Create a commit with the existing prompt |
-| `pnpm reset:minimal -- --yes` | Reset application code to the minimal template |
+| `pnpm run cleanup` | Reset application code to the minimal template |
 
 The reset script preserves all development dependencies, non-database commands,
 Vitest configuration, and repository engineering configuration. It leaves

@@ -66,8 +66,8 @@ const readProjectFiles = (directory: string, relativeDirectory = ''): Record<str
     }),
   )
 
-const runReset = (directory: string, args = ['--', '--yes']) =>
-  spawnSync(process.execPath, [resolve(directory, 'scripts/reset-minimal.mjs'), ...args], {
+const runReset = (directory: string) =>
+  spawnSync(process.execPath, [resolve(directory, 'scripts/reset-minimal.mjs')], {
     cwd: tmpdir(),
     encoding: 'utf8',
     timeout: 10_000,
@@ -85,15 +85,15 @@ afterEach(() => {
 })
 
 describe('reset-minimal', () => {
-  it('requires confirmation before changing any files', () => {
+  it('runs cleanup without additional arguments', () => {
     const directory = createProject()
-    const before = readProjectFiles(directory)
+    writeProjectFile(directory, 'src/extra.ts', 'export const example = true\n')
 
-    const result = runReset(directory, [])
+    resetProject(directory)
 
-    expect(result.status).toBe(1)
-    expect(result.stderr).toContain('pnpm reset:minimal -- --yes')
-    expect(readProjectFiles(directory)).toEqual(before)
+    const packageJson = JSON.parse(readFileSync(resolve(directory, 'package.json'), 'utf8'))
+    expect(packageJson.scripts.cleanup).toBe('node scripts/reset-minimal.mjs')
+    expect(existsSync(resolve(directory, 'src/extra.ts'))).toBe(false)
   })
 
   it('preserves development dependencies, commands, engineering files, and shared infrastructure', () => {

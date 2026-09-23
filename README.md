@@ -37,7 +37,7 @@ and authentication features, reset the template to a minimal Hono app with only
 `/` and `/health`:
 
 ```bash
-pnpm reset:minimal -- --yes
+pnpm run cleanup
 ```
 
 The script recreates `src/` from `scripts/templates/minimal/` and the existing

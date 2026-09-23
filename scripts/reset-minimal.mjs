@@ -14,14 +14,6 @@ import { fileURLToPath } from 'node:url'
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const templateDir = resolve(rootDir, 'scripts/templates/minimal')
 
-if (!process.argv.includes('--yes')) {
-  console.error(
-    'This command resets src, removes template artifacts and local environment files, and keeps READMEs.',
-  )
-  console.error('Re-run with: pnpm reset:minimal -- --yes')
-  process.exit(1)
-}
-
 const sharedSourceFiles = [
   'src/lib/http/app-error.ts',
   'src/lib/http/error-code.ts',

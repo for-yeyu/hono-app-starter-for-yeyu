@@ -47,8 +47,9 @@ code, the validation adapter, and tests at any depth. Application configuration
 is recreated without database or JWT requirements.
 
 It also clears `drizzle/`, `refer/`, `coverage/`, and `dist/`, removes
-`drizzle.config.ts` and root `*.tsbuildinfo` files, and removes `.env` and all
-`.env.*` variants before writing a minimal `.env.example`.
+`drizzle.config.ts` and root `*.tsbuildinfo` files, and removes `.env` and other
+`.env.*` variants while keeping `.env.development` and `.env.production`
+unchanged. It writes a minimal `.env.example`.
 
 It preserves:
 

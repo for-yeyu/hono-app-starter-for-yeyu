@@ -18,7 +18,6 @@ import { afterEach, describe, expect, it } from 'vitest'
 const rootDir = fileURLToPath(new URL('../../', import.meta.url))
 const temporaryDirectories: string[] = []
 const engineeringFiles = [
-  '.gitignore',
   '.editorconfig',
   '.npmrc',
   'AGENTS.md',
@@ -42,7 +41,14 @@ const createTemporaryDirectory = () => {
 const createProject = () => {
   const directory = createTemporaryDirectory()
 
-  for (const path of ['scripts', 'src', 'package.json', 'README.md', ...engineeringFiles]) {
+  for (const path of [
+    'scripts',
+    'src',
+    'package.json',
+    'README.md',
+    '.gitignore',
+    ...engineeringFiles,
+  ]) {
     cpSync(resolve(rootDir, path), resolve(directory, path), { recursive: true })
   }
 
@@ -150,10 +156,9 @@ describe('reset-minimal', () => {
       'tsconfig.tsbuildinfo',
       'custom.tsbuildinfo',
       '.env',
-      '.env.development',
-      '.env.production',
       '.env.test',
       '.env.local',
+      '.env.development.local',
       '.env.production.local',
     ]
     const readmePaths = [
@@ -215,6 +220,27 @@ describe('reset-minimal', () => {
     )
   })
 
+  it('preserves development and production environment files unchanged across repeated resets', () => {
+    const directory = createProject()
+    const environmentFiles = {
+      '.env.development':
+        'Environment=development\nServerPort=3100\nCustomSetting=keep-development\n',
+      '.env.production': 'Environment=production\nServerPort=8080\nCustomSetting=keep-production\n',
+    }
+
+    for (const [path, contents] of Object.entries(environmentFiles)) {
+      writeProjectFile(directory, path, contents)
+    }
+
+    for (let run = 0; run < 2; run++) {
+      resetProject(directory)
+
+      for (const [path, contents] of Object.entries(environmentFiles)) {
+        expect(readFileSync(resolve(directory, path), 'utf8'), path).toBe(contents)
+      }
+    }
+  })
+
   it('fails before cleanup if a required shared file is missing', () => {
     const directory = createProject()
     rmSync(resolve(directory, 'src/lib/http/request-context.ts'))
@@ -224,19 +250,37 @@ describe('reset-minimal', () => {
     expect(readProjectFiles(directory)).toEqual(before)
   })
 
-  it('can run repeatedly without changing the result or duplicating ignore rules', () => {
-    const directory = createProject()
-    writeProjectFile(directory, '.gitignore', 'node_modules/\n')
+  it.each([
+    {
+      name: 'missing environment rules',
+      gitignore: 'node_modules/\n',
+      expectedGitignore: 'node_modules/\n\n# environment files\n.env\n.env.*\n!.env.example\n',
+    },
+    {
+      name: 'partial environment rules',
+      gitignore: 'node_modules/\n.env\n!.env.*\n',
+      expectedGitignore:
+        'node_modules/\n.env\n!.env.*\n\n# environment files\n.env.*\n!.env.example\n',
+    },
+    {
+      name: 'complete environment rules',
+      gitignore: 'node_modules/\n.env\n.env.*\n!.env.example\n',
+      expectedGitignore: 'node_modules/\n.env\n.env.*\n!.env.example\n',
+    },
+  ])(
+    'preserves existing ignore rules and remains idempotent with $name',
+    ({ gitignore, expectedGitignore }) => {
+      const directory = createProject()
+      writeProjectFile(directory, '.gitignore', gitignore)
 
-    resetProject(directory)
-    const before = readProjectFiles(directory)
-    resetProject(directory)
+      resetProject(directory)
+      const before = readProjectFiles(directory)
+      resetProject(directory)
 
-    expect(readProjectFiles(directory)).toEqual(before)
-    expect(before['.gitignore']).toBe(
-      'node_modules/\n\n# environment files\n.env\n.env.*\n!.env.example\n',
-    )
-  })
+      expect(readProjectFiles(directory)).toEqual(before)
+      expect(before['.gitignore']).toBe(expectedGitignore)
+    },
+  )
 
   it('serves the minimal app without database or JWT configuration', () => {
     const directory = createProject()

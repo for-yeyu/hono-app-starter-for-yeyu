@@ -90,7 +90,8 @@ const pathsToRemove = [
   'dist',
   ...readdirSync(rootDir).filter(
     name =>
-      (name !== '.env.example' && (name === '.env' || name.startsWith('.env.'))) ||
+      (!['.env.example', '.env.development', '.env.production'].includes(name) &&
+        (name === '.env' || name.startsWith('.env.'))) ||
       name.endsWith('.tsbuildinfo'),
   ),
 ]

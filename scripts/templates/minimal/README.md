@@ -5,11 +5,22 @@ structured Pino logging, CORS, request IDs, and unified error responses.
 
 ## Quick Start
 
-Install dependencies and create the development environment file:
+Install dependencies:
 
 ```bash
 pnpm install
+```
+
+Existing `.env.development` and `.env.production` files are preserved by cleanup.
+Only create the development environment file if it does not already exist:
+
+```bash
 cp .env.example .env.development
+```
+
+Start the app:
+
+```bash
 pnpm dev
 ```
 
@@ -50,6 +61,8 @@ are not required by this minimal app.
 The reset script preserves all development dependencies, non-database commands,
 Vitest configuration, and repository engineering configuration. It leaves
 `pnpm-lock.yaml` unchanged; run `pnpm install` to reconcile runtime dependencies.
+It keeps `.env.development` and `.env.production` unchanged, removes `.env` and
+other `.env.*` variants, and writes a minimal `.env.example`.
 
 ## Extending the App
 

@@ -33,37 +33,37 @@ pnpm test
 ## Reset to Minimal
 
 When starting a new project that does not need the database or the example user
-feature, reset the template to a minimal Hono app with only `/` and `/health`:
+and authentication features, reset the template to a minimal Hono app with only
+`/` and `/health`:
 
 ```bash
 pnpm reset:minimal -- --yes
 ```
 
-The script keeps every README file, shared HTTP and logger infrastructure, app
-configuration, the Node.js entrypoint, and repository engineering configuration.
-It removes:
+The script recreates `src/` from `scripts/templates/minimal/` and the existing
+shared HTTP error handling, request logging, request context, and Pino logger
+files. It clears all other source files, including feature modules, database
+code, the validation adapter, and tests at any depth. Application configuration
+is recreated without database or JWT requirements.
 
-- database and feature source code under `src/db/` and `src/module/`
-- `drizzle/` and `drizzle.config.ts`
-- database config and schema files
-- `src/**/test/`, `vitest.config.ts`, coverage artifacts, and `dist/`
-- `src/lib/http/z-validator.ts`
-- `refer/`
-- `.env.development` and `.env.production`
-- database, example feature, and test scripts/dependencies from `package.json`
+It also clears `drizzle/`, `refer/`, `coverage/`, and `dist/`, removes
+`drizzle.config.ts` and root `*.tsbuildinfo` files, and removes `.env` and all
+`.env.*` variants before writing a minimal `.env.example`.
 
-It keeps:
+It preserves:
 
-- every `README.md` file, including layer documentation under `src/`
-- `src/app/`, `src/config/app.ts`, and `src/server.ts`
-- shared HTTP error handling, request logging, CORS, and Pino logging
-- Biome, Lefthook, Commitlint, and the root engineering configuration
+- all README files, including `README-zh.md`, `README copy.md`, and nested
+  documentation; directories containing only README files intentionally remain
+- all `devDependencies`, including Vitest, coverage tooling, and Drizzle tooling
+- `qwer`, `commit`, test commands, and every other command except `db:*`
+- `vitest.config.ts`, Biome, Lefthook, Commitlint, and repository engineering
+  configuration
+- `pnpm-lock.yaml` and installed dependencies
 
-The script removes `.env.development` and `.env.production`, then creates
-`.env.example` with only the environment variables required by the minimal app.
-Back up any local environment values before running it. It changes
-`package.json` but intentionally leaves `pnpm-lock.yaml` for you to reconcile
-with `pnpm install`.
+The root README is updated for the minimal app. Runtime dependencies are reduced
+to `@hono/node-server`, `hono`, `pino`, and `zod`, with their versions preserved.
+Back up local environment values and any source code you need before resetting.
+Run `pnpm install` yourself afterward to reconcile the lockfile.
 
 ## Environment
 
